@@ -8,16 +8,16 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
+  id          String    @id @default(uuid())
+  email       String    @unique
   password    String
   name        String
   image       String?
-  role        String   @default("USER")
-  accountType String   @default("LOCAL")
-  isActive    Boolean  @default(false)
-  codeId      String
-  codeExpired DateTime
+  role        String    @default("USER")
+  accountType String    @default("LOCAL")
+  isActive    Boolean   @default(false)
+  codeId      String?
+  codeExpired DateTime?
 
   courses   Course[]
   progress  Progress[]
