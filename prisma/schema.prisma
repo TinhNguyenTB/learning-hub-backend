@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  name        String
+  image       String?
+  role        String   @default("USERS")
+  accountType String   @default("LOCAL")
+  isActive    Boolean  @default(false)
+  codeId      String
+  codeExpired DateTime
+
+  courses   Course[]
+  progress  Progress[]
+  purchases Purchase[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model Course {
+  id          String  @id @default(uuid())
+  title       String  @db.Text
+  subTitle    String? @db.Text
+  description String? @db.Text
+  imageUrl    String? @db.Text
+  price       Float?
+  isPublished Boolean @default(false)
+
+  instructorId String
+  Instructor   User   @relation(fields: [instructorId], references: [id])
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  subCategoryId String
+  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
+
+  levelId String?
+  level   Level?  @relation(fields: [levelId], references: [id])
+
+  sections Section[]
+
+  purchases Purchase[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@index([categoryId])
+  @@index([subCategoryId])
+  @@index([levelId])
+  @@index([instructorId])
+}
+
+model Category {
+  id            String        @id @default(uuid())
+  name          String        @unique
+  subCategories SubCategory[]
+  courses       Course[]
+}
+
+model SubCategory {
+  id         String   @id @default(uuid())
+  name       String
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  courses    Course[]
+
+  @@index([categoryId])
+}
+
+model Level {
+  id      String   @id @default(uuid())
+  name    String   @unique
+  courses Course[]
+}
+
+model Section {
+  id          String  @id @default(uuid())
+  title       String
+  description String? @db.Text
+  videoUrl    String? @db.Text
+  position    Int
+  isPublished Boolean @default(false)
+  isFree      Boolean @default(false)
+
+  courseId String
+  Course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  video     Video?
+  resources Resource[]
+  progress  Progress[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@index([courseId])
+}
+
+model Video {
+  id  String @id @default(uuid())
+  url String
+
+  sectionId String  @unique
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([sectionId])
+}
+
+model Resource {
+  id      String @id @default(uuid())
+  name    String
+  fileUrl String
+
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@index([sectionId])
+}
+
+model Progress {
+  id String @id @default(uuid())
+
+  studentId String
+  student   User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  isCompleted Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@unique([studentId, sectionId])
+  @@index([sectionId])
+}
+
+model Purchase {
+  id String @id @default(uuid())
+
+  customerId String
+  customer   User   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@unique([customerId, courseId])
+  @@index([courseId])
+}
+
+model StripeCustomer {
+  id               String @id @default(uuid())
+  customerId       String @unique
+  stripeCustomerId String @unique
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+}
