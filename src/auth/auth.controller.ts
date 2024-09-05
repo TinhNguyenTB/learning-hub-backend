@@ -3,7 +3,7 @@ import { AuthService } from '@/auth/auth.service';
 import { RegisterDto } from '@/auth/dto/auth.dto';
 import { LocalAuthGuard } from '@/auth/passport/local-auth.guard';
 import { JwtAuthGuard } from '@/auth/passport/jwt-auth.guard';
-import { Public } from '@/decorator/customize';
+import { Public, ResponseMessage } from '@/decorator/customize';
 
 @Controller('auth')
 export class AuthController {
@@ -11,6 +11,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Public()
+  @ResponseMessage("User login")
   @Post('login')
   async login(@Request() req) {
     return this.authService.login(req.user);
