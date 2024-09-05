@@ -3,6 +3,9 @@ import { CreateUserDto } from '@/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/users/dto/update-user.dto';
 import { PrismaService } from '@/prisma.service';
 import { generateHashPassword } from '@/helpers/utils';
+import { RegisterDto } from '@/auth/dto/auth.dto';
+import { v4 as uuidv4 } from 'uuid';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UsersService {
@@ -63,5 +66,42 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async handleRegister(registerDto: RegisterDto) {
+    const { name, email, password } = registerDto;
+    // check email
+    const isExist = await this.isEmailExist(email);
+    if (isExist) {
+      throw new BadRequestException(`Email '${email}' already exist. Please try another email.`)
+    }
+    // hash password
+    const hashPassword = await generateHashPassword(password);
+    const codeId = uuidv4();
+    const user = await this.prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashPassword,
+        isActive: false,
+        codeId: codeId,
+        codeExpired: dayjs().add(5, 'minutes').toDate()
+      }
+
+    })
+    //send email
+    // this.mailerService.sendMail({
+    //   to: user.email,
+    //   subject: 'Activate your account ✔',
+    //   template: 'register',
+    //   context: {
+    //     name: user.name ?? user.email,
+    //     activationCode: codeId
+    //   }
+    // })
+
+    return {
+      id: user.id
+    };
   }
 }

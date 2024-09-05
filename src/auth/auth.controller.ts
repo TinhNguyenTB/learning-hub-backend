@@ -2,12 +2,15 @@ import { Controller, Post, Body, UseGuards, Request, Get } from '@nestjs/common'
 import { AuthService } from '@/auth/auth.service';
 import { RegisterDto } from '@/auth/dto/auth.dto';
 import { LocalAuthGuard } from '@/auth/passport/local-auth.guard';
-import { JwtAuthGuard } from '@/auth/passport/jwt-auth.guard';
 import { Public, ResponseMessage } from '@/decorator/customize';
+import { UsersService } from '@/modules/users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UsersService,
+  ) { }
 
   @UseGuards(LocalAuthGuard)
   @Public()
@@ -17,9 +20,11 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
+  @Post('register')
+  @Public()
+  @ResponseMessage("User register")
+  register(@Body() registerDto: RegisterDto) {
+    return this.userService.handleRegister(registerDto);
   }
 
 }
