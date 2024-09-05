@@ -34,4 +34,10 @@ export class AuthController {
     return this.userService.handleActivate(activeDto);
   }
 
+  @Post('retry-activate')
+  @Public()
+  @ResponseMessage("Retry activate user account")
+  retryActivate(@Body("email") email: string) {
+    return this.userService.handleRetryActivate(email);
+  }
 }

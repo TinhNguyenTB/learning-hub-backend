@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -74,6 +75,19 @@ export class UsersService {
     return `This action removes a #${id} user`;
   }
 
+  sendEmailActivate(user: User, codeId: string, codeExpired: number) {
+    this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Activate your account ✔',
+      template: 'register',
+      context: {
+        name: user.name ?? user.email,
+        activationCode: codeId,
+        codeExpired: codeExpired
+      }
+    });
+  }
+
   async handleRegister(registerDto: RegisterDto) {
     const { name, email, password } = registerDto;
     // check email
@@ -94,18 +108,9 @@ export class UsersService {
         codeId: codeId,
         codeExpired: dayjs().add(codeExpired, 'minutes').toDate()
       }
-
     })
     //send email
-    this.mailerService.sendMail({
-      to: user.email,
-      subject: 'Activate your account ✔',
-      template: 'register',
-      context: {
-        name: user.name ?? user.email,
-        activationCode: codeId
-      }
-    });
+    this.sendEmailActivate(user, codeId, codeExpired)
     return {
       id: user.id
     };
@@ -119,7 +124,7 @@ export class UsersService {
       }
     })
     if (!user) {
-      throw new BadRequestException("Your activation code is invalid")
+      throw new BadRequestException("Account does not exist or your activation code is invalid")
     }
     // check activation code expired
     const isBeforeCheck = dayjs().isBefore(user.codeExpired);
@@ -139,5 +144,32 @@ export class UsersService {
     return {
       isActive: isBeforeCheck
     }
+  }
+
+  async handleRetryActivate(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email }
+    });
+    if (!user) {
+      throw new BadRequestException("Account is not exist")
+    }
+    else if (user.isActive) {
+      throw new BadRequestException("Account has been activated")
+    }
+    // update codeId and codeExpired
+    const codeId = uuidv4().slice(-12); // get last 12 chars
+    const codeExpired = this.configService.get<number>("ACTIVE_CODE_EXPIRED")
+    await this.prisma.user.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        codeId: codeId,
+        codeExpired: dayjs().add(codeExpired, 'minutes').toDate()
+      }
+    })
+    //send email
+    this.sendEmailActivate(user, codeId, codeExpired)
+    return;
   }
 }
