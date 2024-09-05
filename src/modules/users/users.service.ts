@@ -6,10 +6,16 @@ import { generateHashPassword } from '@/helpers/utils';
 import { RegisterDto } from '@/auth/dto/auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
+import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private readonly mailerService: MailerService,
+    private configService: ConfigService
+  ) { }
 
   async isEmailExist(email: string) {
     const user = await this.prisma.user.findUnique({
@@ -78,6 +84,7 @@ export class UsersService {
     // hash password
     const hashPassword = await generateHashPassword(password);
     const codeId = uuidv4();
+    const codeExpired = this.configService.get<number>("ACTIVE_CODE_EXPIRED")
     const user = await this.prisma.user.create({
       data: {
         name,
@@ -85,20 +92,20 @@ export class UsersService {
         password: hashPassword,
         isActive: false,
         codeId: codeId,
-        codeExpired: dayjs().add(5, 'minutes').toDate()
+        codeExpired: dayjs().add(codeExpired, 'minutes').toDate()
       }
 
     })
     //send email
-    // this.mailerService.sendMail({
-    //   to: user.email,
-    //   subject: 'Activate your account ✔',
-    //   template: 'register',
-    //   context: {
-    //     name: user.name ?? user.email,
-    //     activationCode: codeId
-    //   }
-    // })
+    this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Activate your account ✔',
+      template: 'register',
+      context: {
+        name: user.name ?? user.email,
+        activationCode: codeId
+      }
+    })
 
     return {
       id: user.id
