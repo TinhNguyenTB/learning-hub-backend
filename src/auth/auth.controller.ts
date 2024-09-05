@@ -1,6 +1,6 @@
-import { Controller, Post, Body, UseGuards, Request, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from '@/auth/auth.service';
-import { RegisterDto } from '@/auth/dto/auth.dto';
+import { ActiveDto, RegisterDto } from '@/auth/dto/auth.dto';
 import { LocalAuthGuard } from '@/auth/passport/local-auth.guard';
 import { Public, ResponseMessage } from '@/decorator/customize';
 import { UsersService } from '@/modules/users/users.service';
@@ -25,6 +25,13 @@ export class AuthController {
   @ResponseMessage("User register")
   register(@Body() registerDto: RegisterDto) {
     return this.userService.handleRegister(registerDto);
+  }
+
+  @Post('activate')
+  @Public()
+  @ResponseMessage("Activate user account")
+  activate(@Body() activeDto: ActiveDto) {
+    return this.userService.handleActivate(activeDto);
   }
 
 }

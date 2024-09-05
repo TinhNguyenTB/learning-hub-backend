@@ -3,7 +3,7 @@ import { CreateUserDto } from '@/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/users/dto/update-user.dto';
 import { PrismaService } from '@/prisma.service';
 import { generateHashPassword } from '@/helpers/utils';
-import { RegisterDto } from '@/auth/dto/auth.dto';
+import { ActiveDto, RegisterDto } from '@/auth/dto/auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -83,7 +83,7 @@ export class UsersService {
     }
     // hash password
     const hashPassword = await generateHashPassword(password);
-    const codeId = uuidv4();
+    const codeId = uuidv4().slice(-12); // get last 12 chars
     const codeExpired = this.configService.get<number>("ACTIVE_CODE_EXPIRED")
     const user = await this.prisma.user.create({
       data: {
@@ -105,10 +105,39 @@ export class UsersService {
         name: user.name ?? user.email,
         activationCode: codeId
       }
-    })
-
+    });
     return {
       id: user.id
     };
+  }
+
+  async handleActivate(activeDto: ActiveDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: activeDto.id,
+        codeId: activeDto.code
+      }
+    })
+    if (!user) {
+      throw new BadRequestException("Your activation code is invalid")
+    }
+    // check activation code expired
+    const isBeforeCheck = dayjs().isBefore(user.codeExpired);
+    if (isBeforeCheck) {
+      await this.prisma.user.update({
+        where: {
+          id: activeDto.id
+        },
+        data: {
+          isActive: true
+        }
+      });
+    }
+    else {
+      throw new BadRequestException("Your activation code is invalid or has expired")
+    }
+    return {
+      isActive: isBeforeCheck
+    }
   }
 }
