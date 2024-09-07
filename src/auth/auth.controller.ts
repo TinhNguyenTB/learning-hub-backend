@@ -41,6 +41,13 @@ export class AuthController {
     return this.userService.handleRetryActivate(email);
   }
 
+  @Post('forgot-password')
+  @Public()
+  @ResponseMessage("Forgot password")
+  forgotPassword(@Body("email") email: string) {
+    return this.userService.handleForgotPassword(email);
+  }
+
   @Post('change-password')
   @ResponseMessage("Change user password")
   changePassword(@Body() changePasswordDto: ChangePasswordDto, @User() user: IUser) {

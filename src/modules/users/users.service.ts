@@ -88,6 +88,18 @@ export class UsersService {
     });
   }
 
+  sendEmailForgotPassword(user: User, randomPass: string) {
+    this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Forgot password',
+      template: 'forgot-password',
+      context: {
+        name: user.name ?? user.email,
+        newPassword: randomPass,
+      }
+    });
+  }
+
   async handleRegister(registerDto: RegisterDto) {
     const { name, email, password } = registerDto;
     // check email
@@ -170,6 +182,32 @@ export class UsersService {
     })
     //send email
     this.sendEmailActivate(user, codeId, codeExpired)
+    return;
+  }
+
+  async handleForgotPassword(email: string) {
+    if (!email) {
+      throw new BadRequestException("Email is required")
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { email }
+    });
+    if (!user) {
+      throw new BadRequestException("Account is not exist")
+    }
+    // update codeId and codeExpired
+    const randomPass = uuidv4().slice(0, 8); // get first 8 chars
+    const newPassword = await generateHashPassword(randomPass);
+    await this.prisma.user.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        password: newPassword
+      }
+    })
+    //send email
+    this.sendEmailForgotPassword(user, randomPass)
     return;
   }
 
