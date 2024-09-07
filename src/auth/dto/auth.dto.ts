@@ -21,12 +21,6 @@ export class ActiveDto {
 
 export class ChangePasswordDto {
     @IsNotEmpty()
-    code: string;
-
-    @IsEmail()
-    email: string;
-
-    @IsNotEmpty()
     password: string;
 
     @IsNotEmpty()

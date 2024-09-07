@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from '@/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/users/dto/update-user.dto';
 import { PrismaService } from '@/prisma.service';
 import { generateHashPassword } from '@/helpers/utils';
-import { ActiveDto, RegisterDto } from '@/auth/dto/auth.dto';
+import { ActiveDto, ChangePasswordDto, RegisterDto } from '@/auth/dto/auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -171,5 +171,33 @@ export class UsersService {
     //send email
     this.sendEmailActivate(user, codeId, codeExpired)
     return;
+  }
+
+  async handleChangePassword(changePasswordDto: ChangePasswordDto, user: IUser) {
+    const findUser = await this.prisma.user.findUnique({
+      where: {
+        id: user.id,
+        email: user.email
+      }
+    });
+    if (!findUser) {
+      throw new BadRequestException("Account is not exist")
+    }
+    if (changePasswordDto.password !== changePasswordDto.confirmPassword) {
+      throw new BadRequestException("Passwords do not match")
+    }
+    const newPassword = await generateHashPassword(changePasswordDto.password);
+    const result = await this.prisma.user.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        password: newPassword
+      }
+    })
+    return {
+      id: result.id,
+      updatedAt: result.updatedAt
+    }
   }
 }
