@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `User` MODIFY `role` VARCHAR(191) NOT NULL DEFAULT 'USER',
+    MODIFY `codeId` VARCHAR(191) NULL,
+    MODIFY `codeExpired` DATETIME(3) NULL;
