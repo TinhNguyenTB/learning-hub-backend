@@ -9,8 +9,8 @@ datasource db {
 
 model User {
   id          String    @id @default(uuid())
-  email       String    @unique
-  password    String
+  email       String
+  password    String?
   name        String
   image       String?
   role        String    @default("USER")

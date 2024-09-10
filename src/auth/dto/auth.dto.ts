@@ -26,3 +26,17 @@ export class ChangePasswordDto {
     @IsNotEmpty()
     confirmPassword: string;
 }
+
+export class SocialMediaAccountDto {
+    @IsEmail()
+    email: string;
+
+    @IsNotEmpty()
+    accountType: string;
+
+    @IsNotEmpty()
+    name: string;
+
+    @IsOptional()
+    image: string
+}

@@ -1,6 +1,6 @@
 import { Controller, Post, Body, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from '@/auth/auth.service';
-import { ActiveDto, ChangePasswordDto, RegisterDto } from '@/auth/dto/auth.dto';
+import { ActiveDto, ChangePasswordDto, RegisterDto, SocialMediaAccountDto } from '@/auth/dto/auth.dto';
 import { LocalAuthGuard } from '@/auth/passport/local-auth.guard';
 import { Public, ResponseMessage, User } from '@/decorator/customize';
 import { UsersService } from '@/modules/users/users.service';
@@ -52,5 +52,12 @@ export class AuthController {
   @ResponseMessage("Change user password")
   changePassword(@Body() changePasswordDto: ChangePasswordDto, @User() user: IUser) {
     return this.userService.handleChangePassword(changePasswordDto, user);
+  }
+
+  @Post('social-media')
+  @Public()
+  @ResponseMessage("Login with social media")
+  loginSocialMedia(@Body() data: SocialMediaAccountDto) {
+    return this.authService.loginSocialMedia(data);
   }
 }

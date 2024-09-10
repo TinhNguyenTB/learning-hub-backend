@@ -3,7 +3,7 @@ import { CreateUserDto } from '@/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/users/dto/update-user.dto';
 import { PrismaService } from '@/prisma.service';
 import { generateHashPassword } from '@/helpers/utils';
-import { ActiveDto, ChangePasswordDto, RegisterDto } from '@/auth/dto/auth.dto';
+import { ActiveDto, ChangePasswordDto, RegisterDto, SocialMediaAccountDto } from '@/auth/dto/auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -19,7 +19,7 @@ export class UsersService {
   ) { }
 
   async isEmailExist(email: string) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: {
         email
       }
@@ -35,7 +35,7 @@ export class UsersService {
     // check email
     const isExist = await this.isEmailExist(email);
     if (isExist) {
-      throw new BadRequestException(`Email '${email}' already exist. Please try another email.`)
+      throw new BadRequestException(`Email '${email}' already in use. Please try another email.`)
     }
     // hash password
     const hashPassword = await generateHashPassword(password)
@@ -51,6 +51,28 @@ export class UsersService {
     };
   }
 
+  async handleLoginSocialMedia(data: SocialMediaAccountDto) {
+    const { email, name, accountType, image } = data;
+    let user = await this.prisma.user.findFirst({
+      where: {
+        email,
+        accountType
+      }
+    })
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          name,
+          email,
+          accountType,
+          isActive: true,
+          image: image ?? null
+        }
+      })
+    }
+    return user;
+  }
+
   findAll() {
     return `This action returns all users`;
   }
@@ -60,7 +82,7 @@ export class UsersService {
   }
 
   async findByEmail(email: string) {
-    return await this.prisma.user.findUnique({
+    return await this.prisma.user.findFirst({
       where: {
         email
       }
@@ -105,7 +127,7 @@ export class UsersService {
     // check email
     const isExist = await this.isEmailExist(email);
     if (isExist) {
-      throw new BadRequestException(`Email '${email}' already exist. Please try another email.`)
+      throw new BadRequestException(`Email '${email}' already in use. Please try another email.`)
     }
     // hash password
     const hashPassword = await generateHashPassword(password);
@@ -159,7 +181,7 @@ export class UsersService {
   }
 
   async handleRetryActivate(email: string) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: { email }
     });
     if (!user) {
@@ -189,7 +211,7 @@ export class UsersService {
     if (!email) {
       throw new BadRequestException("Email is required")
     }
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: { email }
     });
     if (!user) {
