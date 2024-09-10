@@ -123,11 +123,14 @@ export class UsersService {
   }
 
   async handleRegister(registerDto: RegisterDto) {
-    const { name, email, password } = registerDto;
+    const { name, email, password, confirmPassword } = registerDto;
     // check email
     const isExist = await this.isEmailExist(email);
     if (isExist) {
       throw new BadRequestException(`Email '${email}' already in use. Please try another email.`)
+    }
+    if (password !== confirmPassword) {
+      throw new BadRequestException(`Passwords don't match`)
     }
     // hash password
     const hashPassword = await generateHashPassword(password);

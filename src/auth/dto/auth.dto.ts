@@ -7,8 +7,11 @@ export class RegisterDto {
     @IsNotEmpty()
     password: string;
 
-    @IsOptional()
+    @IsNotEmpty()
     name: string;
+
+    @IsNotEmpty()
+    confirmPassword: string;
 }
 
 export class ActiveDto {
