@@ -149,7 +149,8 @@ export class UsersService {
     //send email
     this.sendEmailActivate(user, codeId, codeExpired)
     return {
-      id: user.id
+      id: user.id,
+      email: user.email
     };
   }
 
@@ -161,7 +162,7 @@ export class UsersService {
       }
     })
     if (!user) {
-      throw new BadRequestException("Account does not exist or your activation code is invalid")
+      throw new BadRequestException("Your activation code is invalid")
     }
     // check activation code expired
     const isBeforeCheck = dayjs().isBefore(user.codeExpired);
@@ -207,7 +208,9 @@ export class UsersService {
     })
     //send email
     this.sendEmailActivate(user, codeId, codeExpired)
-    return;
+    return {
+      id: user.id
+    }
   }
 
   async handleForgotPassword(email: string) {
