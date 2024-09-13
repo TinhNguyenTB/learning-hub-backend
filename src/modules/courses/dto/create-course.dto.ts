@@ -7,10 +7,6 @@ export class CreateCourseDto {
 
     @IsNotEmpty()
     @IsString()
-    instructorId: string
-
-    @IsNotEmpty()
-    @IsString()
     categoryId: string
 
     @IsNotEmpty()

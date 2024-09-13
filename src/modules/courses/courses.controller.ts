@@ -1,25 +1,33 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { ResponseMessage, User } from '@/decorator/customize';
 
 @Controller('courses')
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) {}
+  constructor(private readonly coursesService: CoursesService) { }
 
   @Post()
-  create(@Body() createCourseDto: CreateCourseDto) {
-    return this.coursesService.create(createCourseDto);
+  @ResponseMessage("Create a new course")
+  create(@Body() createCourseDto: CreateCourseDto, @User() user: IUser) {
+    return this.coursesService.create(createCourseDto, user);
   }
 
   @Get()
-  findAll() {
-    return this.coursesService.findAll();
+  @ResponseMessage("Get courses pagination")
+  findAll(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Query('search') search: string,
+    @User() user: IUser
+  ) {
+    return this.coursesService.findAll(+page, +limit, search, user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.coursesService.findOne(+id);
+  findOne(@Param('id') id: string, @User() user: IUser) {
+    return this.coursesService.findOne(id, user);
   }
 
   @Patch(':id')
