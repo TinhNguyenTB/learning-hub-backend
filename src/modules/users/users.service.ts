@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { CreateUserDto } from '@/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/users/dto/update-user.dto';
 import { PrismaService } from '@/prisma.service';
-import { generateHashPassword } from '@/helpers/utils';
+import { comparePassword, generateHashPassword } from '@/helpers/utils';
 import { ActiveDto, ChangePasswordDto, RegisterDto, SocialMediaAccountDto } from '@/auth/dto/auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
@@ -248,6 +248,10 @@ export class UsersService {
     });
     if (!findUser) {
       throw new BadRequestException("Account is not exist")
+    }
+    const isValidPassword = await comparePassword(changePasswordDto.oldPassword, findUser.password);
+    if (!isValidPassword) {
+      throw new BadRequestException("Old password is incorrect")
     }
     if (changePasswordDto.password !== changePasswordDto.confirmPassword) {
       throw new BadRequestException("Passwords do not match")

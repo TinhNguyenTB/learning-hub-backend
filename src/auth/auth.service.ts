@@ -41,6 +41,7 @@ export class AuthService {
         name: user.name,
         image: user.image,
         role: user.role,
+        accountType: user.accountType,
         isActive: user.isActive
       },
       access_token: this.jwtService.sign(payload),
@@ -63,6 +64,7 @@ export class AuthService {
         name: user.name,
         image: user.image,
         role: user.role,
+        accountType: user.accountType,
         isActive: user.isActive
       },
       access_token: this.jwtService.sign(payload),
