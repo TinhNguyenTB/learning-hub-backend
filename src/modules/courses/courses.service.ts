@@ -66,14 +66,11 @@ export class CoursesService {
   }
 
   async findOne(id: string, user: IUser) {
-    return await this.prisma.course.findMany({
+    return await this.prisma.course.findUnique({
       where: {
         id,
         instructorId: user.id
       },
-      orderBy: {
-        createdAt: 'desc'
-      }
     })
   }
 
