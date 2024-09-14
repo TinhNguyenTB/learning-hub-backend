@@ -3,10 +3,6 @@ import { CreateCourseDto } from './create-course.dto';
 import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateCourseDto extends PartialType(CreateCourseDto) {
-    @IsNotEmpty()
-    @IsString()
-    id: string
-
     @IsOptional()
     subTitle: string
 

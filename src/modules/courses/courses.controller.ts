@@ -30,9 +30,10 @@ export class CoursesController {
     return this.coursesService.findOne(id, user);
   }
 
+  @ResponseMessage("Update course")
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
-    return this.coursesService.update(+id, updateCourseDto);
+  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto, @User() user: IUser) {
+    return this.coursesService.update(id, updateCourseDto, user);
   }
 
   @Delete(':id')

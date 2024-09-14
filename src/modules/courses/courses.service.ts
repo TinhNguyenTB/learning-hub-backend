@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { PrismaService } from '@/prisma.service';
+import { User } from '@/decorator/customize';
 
 @Injectable()
 export class CoursesService {
@@ -74,8 +75,16 @@ export class CoursesService {
     })
   }
 
-  update(id: number, updateCourseDto: UpdateCourseDto) {
-    return `This action updates a #${id} course`;
+  async update(id: string, updateCourseDto: UpdateCourseDto, @User() user: IUser) {
+    return await this.prisma.course.update({
+      where: {
+        id,
+        instructorId: user.id
+      },
+      data: {
+        ...updateCourseDto
+      }
+    })
   }
 
   remove(id: number) {
