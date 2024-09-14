@@ -1,11 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
+import { PrismaService } from '@/prisma.service';
 
 @Injectable()
 export class SectionsService {
-  create(createSectionDto: CreateSectionDto) {
-    return 'This action adds a new section';
+  constructor(
+    private prisma: PrismaService
+  ) { }
+
+  async create(createSectionDto: CreateSectionDto, user: IUser) {
+    const course = await this.prisma.course.findUnique({
+      where: {
+        id: createSectionDto.courseId,
+        instructorId: user.id
+      }
+    })
+    if (!course) {
+      return new NotFoundException("Course not found")
+    }
+    const lastSection = await this.prisma.section.findFirst({
+      where: {
+        courseId: course.id,
+      },
+      orderBy: {
+        position: 'desc'
+      }
+    })
+
+    const newPosition = lastSection ? lastSection.position + 1 : 0
+
+    return await this.prisma.section.create({
+      data: {
+        title: createSectionDto.title,
+        courseId: course.id,
+        position: newPosition
+      }
+    })
   }
 
   findAll() {

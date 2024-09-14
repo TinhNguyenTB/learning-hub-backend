@@ -2,14 +2,16 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { SectionsService } from './sections.service';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
+import { ResponseMessage, User } from '@/decorator/customize';
 
 @Controller('sections')
 export class SectionsController {
-  constructor(private readonly sectionsService: SectionsService) {}
+  constructor(private readonly sectionsService: SectionsService) { }
 
+  @ResponseMessage("Create a new section")
   @Post()
-  create(@Body() createSectionDto: CreateSectionDto) {
-    return this.sectionsService.create(createSectionDto);
+  create(@Body() createSectionDto: CreateSectionDto, @User() user: IUser) {
+    return this.sectionsService.create(createSectionDto, user);
   }
 
   @Get()
