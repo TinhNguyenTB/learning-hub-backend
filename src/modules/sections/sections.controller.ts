@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { SectionsService } from './sections.service';
 import { CreateSectionDto } from './dto/create-section.dto';
-import { UpdateSectionDto } from './dto/update-section.dto';
+import { ReorderSectionDto, UpdateSectionDto } from './dto/update-section.dto';
 import { ResponseMessage, User } from '@/decorator/customize';
 
 @Controller('sections')
@@ -27,6 +27,12 @@ export class SectionsController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSectionDto: UpdateSectionDto) {
     return this.sectionsService.update(+id, updateSectionDto);
+  }
+
+  @ResponseMessage("Reorder section")
+  @Put("reorder")
+  reorder(@Body() reorderDto: ReorderSectionDto, @User() user: IUser) {
+    return this.sectionsService.reorder(reorderDto, user);
   }
 
   @Delete(':id')

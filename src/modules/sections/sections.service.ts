@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSectionDto } from './dto/create-section.dto';
-import { UpdateSectionDto } from './dto/update-section.dto';
+import { ReorderSectionDto, UpdateSectionDto } from './dto/update-section.dto';
 import { PrismaService } from '@/prisma.service';
 
 @Injectable()
@@ -49,6 +49,31 @@ export class SectionsService {
 
   update(id: number, updateSectionDto: UpdateSectionDto) {
     return `This action updates a #${id} section`;
+  }
+
+  async reorder(reorderDto: ReorderSectionDto, user: IUser) {
+    const course = await this.prisma.course.findUnique({
+      where: {
+        id: reorderDto.courseId,
+        instructorId: user.id
+      }
+    })
+    if (!course) {
+      return new NotFoundException("Course not found")
+    }
+    for (let item of reorderDto.list) {
+      await this.prisma.section.update({
+        where: {
+          id: item.id
+        },
+        data: {
+          position: item.position,
+        },
+      });
+    }
+    return {
+      message: "Reorder sections successfully"
+    }
   }
 
   remove(id: number) {
