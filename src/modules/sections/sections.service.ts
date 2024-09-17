@@ -43,11 +43,20 @@ export class SectionsService {
     return `This action returns all sections`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} section`;
+  async findOne(id: string, courseId: string) {
+    return await this.prisma.section.findUnique({
+      where: {
+        id,
+        courseId
+      },
+      include: {
+        resources: true,
+        video: true
+      }
+    })
   }
 
-  update(id: number, updateSectionDto: UpdateSectionDto) {
+  async update(id: string, updateSectionDto: UpdateSectionDto, user: IUser) {
     return `This action updates a #${id} section`;
   }
 

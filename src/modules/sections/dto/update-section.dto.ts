@@ -6,10 +6,6 @@ import { Type } from 'class-transformer';
 export class UpdateSectionDto extends PartialType(CreateSectionDto) {
     @IsNotEmpty()
     @IsString()
-    id: string
-
-    @IsNotEmpty()
-    @IsString()
     description: string
 
     @IsNotEmpty()

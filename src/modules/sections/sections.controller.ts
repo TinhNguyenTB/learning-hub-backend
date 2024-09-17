@@ -19,14 +19,15 @@ export class SectionsController {
     return this.sectionsService.findAll();
   }
 
+  @ResponseMessage("Get section by id")
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.sectionsService.findOne(+id);
+  findOne(@Param('id') id: string, @Body("courseId") courseId: string) {
+    return this.sectionsService.findOne(id, courseId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSectionDto: UpdateSectionDto) {
-    return this.sectionsService.update(+id, updateSectionDto);
+  update(@Param('id') id: string, @Body() updateSectionDto: UpdateSectionDto, @User() user: IUser) {
+    return this.sectionsService.update(id, updateSectionDto, user);
   }
 
   @ResponseMessage("Reorder section")
