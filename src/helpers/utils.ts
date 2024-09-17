@@ -16,3 +16,14 @@ export const comparePassword = async (plainPassword: string, hashPassword: strin
         console.log(error)
     }
 }
+
+export function generateOTP() {
+    // Lấy thời gian hiện tại và tạo một số ngẫu nhiên
+    const currentTime = new Date().getTime();
+    const randomFactor = Math.floor(Math.random() * 1000000); // Số ngẫu nhiên từ 0 đến 999999
+
+    // Kết hợp thời gian và số ngẫu nhiên
+    const otp = (currentTime + randomFactor).toString().slice(-6);
+
+    return otp;
+}

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { CreateUserDto } from '@/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/users/dto/update-user.dto';
 import { PrismaService } from '@/prisma.service';
-import { comparePassword, generateHashPassword } from '@/helpers/utils';
+import { comparePassword, generateHashPassword, generateOTP } from '@/helpers/utils';
 import { ActiveDto, ChangePasswordDto, RegisterDto, SocialMediaAccountDto } from '@/auth/dto/auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
@@ -134,7 +134,7 @@ export class UsersService {
     }
     // hash password
     const hashPassword = await generateHashPassword(password);
-    const codeId = uuidv4().slice(-12); // get last 12 chars
+    const codeId = generateOTP()
     const codeExpired = this.configService.get<number>("ACTIVE_CODE_EXPIRED")
     const user = await this.prisma.user.create({
       data: {
@@ -195,7 +195,7 @@ export class UsersService {
       throw new BadRequestException("Account has been activated")
     }
     // update codeId and codeExpired
-    const codeId = uuidv4().slice(-12); // get last 12 chars
+    const codeId = generateOTP()
     const codeExpired = this.configService.get<number>("ACTIVE_CODE_EXPIRED")
     await this.prisma.user.update({
       where: {
