@@ -22,6 +22,8 @@ model User {
   courses   Course[]
   progress  Progress[]
   purchases Purchase[]
+  comments  Comment[]
+  ratings   Rating[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
@@ -48,9 +50,12 @@ model Course {
   levelId String?
   level   Level?  @relation(fields: [levelId], references: [id])
 
-  sections Section[]
-
+  sections  Section[]
   purchases Purchase[]
+  comments  Comment[]
+  ratings   Rating[]
+
+  averageRating Float? @default(0.0)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
@@ -171,4 +176,32 @@ model StripeCustomer {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
+}
+
+model Comment {
+  id        String    @id @default(uuid())
+  content   String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@index([userId, courseId])
+}
+
+model Rating {
+  id        String    @id @default(uuid())
+  content   String
+  quality   Float
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@unique([userId, courseId])
+  @@index([userId, courseId])
 }
