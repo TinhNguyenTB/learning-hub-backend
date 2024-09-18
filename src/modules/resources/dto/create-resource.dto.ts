@@ -12,4 +12,8 @@ export class CreateResourceDto {
     @IsNotEmpty()
     @IsString()
     sectionId: string
+
+    @IsNotEmpty()
+    @IsString()
+    courseId: string
 }
