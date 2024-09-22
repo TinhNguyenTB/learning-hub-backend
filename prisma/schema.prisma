@@ -56,6 +56,7 @@ model Course {
   ratings   Rating[]
 
   averageRating Float? @default(0.0)
+  duration      Float? @default(0.0)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
@@ -101,7 +102,6 @@ model Section {
   courseId String
   Course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  video     Video?
   resources Resource[]
   progress  Progress[]
 
@@ -109,16 +109,6 @@ model Section {
   updatedAt DateTime? @updatedAt
 
   @@index([courseId])
-}
-
-model Video {
-  id  String @id @default(uuid())
-  url String
-
-  sectionId String  @unique
-  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-
-  @@index([sectionId])
 }
 
 model Resource {

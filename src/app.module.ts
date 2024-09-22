@@ -11,7 +11,6 @@ import { PurchasesModule } from '@/modules/purchases/purchases.module';
 import { ResourcesModule } from '@/modules/resources/resources.module';
 import { SectionsModule } from '@/modules/sections/sections.module';
 import { SubcategoriesModule } from '@/modules/subcategories/subcategories.module';
-import { VideosModule } from '@/modules/videos/videos.module';
 import { AuthModule } from '@/auth/auth.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from '@/auth/passport/jwt-auth.guard';
@@ -32,7 +31,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     ResourcesModule,
     SectionsModule,
     SubcategoriesModule,
-    VideosModule,
+
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

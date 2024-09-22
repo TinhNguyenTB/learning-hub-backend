@@ -19,6 +19,14 @@ export class UpdateSectionDto extends PartialType(CreateSectionDto) {
     @IsOptional()
     @IsBoolean()
     isFree: boolean
+
+    @IsNotEmpty()
+    @IsString()
+    courseId: string
+
+    @IsNotEmpty()
+    @IsNumber()
+    videoDuration: number
 }
 
 export class ReorderSectionDto {

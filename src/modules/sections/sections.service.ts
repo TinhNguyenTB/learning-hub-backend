@@ -51,13 +51,47 @@ export class SectionsService {
       },
       include: {
         resources: true,
-        video: true
       }
     })
   }
 
   async update(id: string, updateSectionDto: UpdateSectionDto, user: IUser) {
-    return `This action updates a #${id} section`;
+    const course = await this.prisma.course.findUnique({
+      where: {
+        id: updateSectionDto.courseId,
+        instructorId: user.id
+      },
+      select: {
+        duration: true
+      }
+    })
+    if (!course) {
+      return new NotFoundException("Course not found")
+    }
+    const { title, description, videoUrl, isFree, videoDuration } = updateSectionDto
+    const section = await this.prisma.section.update({
+      where: {
+        id,
+        courseId: updateSectionDto.courseId
+      },
+      data: {
+        title,
+        description,
+        videoUrl,
+        isFree: isFree ?? false
+      }
+    })
+    if (videoUrl && videoUrl !== section.videoUrl) {
+      await this.prisma.course.update({
+        where: {
+          id: updateSectionDto.courseId
+        },
+        data: {
+          duration: course.duration + videoDuration
+        }
+      })
+    }
+    return section;
   }
 
   async reorder(reorderDto: ReorderSectionDto, user: IUser) {
