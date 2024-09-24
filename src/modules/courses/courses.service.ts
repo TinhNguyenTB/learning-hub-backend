@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { PrismaService } from '@/prisma.service';
@@ -93,7 +93,21 @@ export class CoursesService {
     })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} course`;
+  async remove(courseId: string) {
+    // check course exist
+    const course = await this.prisma.course.findUnique({
+      where: {
+        id: courseId
+      },
+    })
+    if (!course) {
+      return new NotFoundException("Course not found")
+    }
+
+    return await this.prisma.course.delete({
+      where: {
+        id: courseId
+      }
+    })
   }
 }

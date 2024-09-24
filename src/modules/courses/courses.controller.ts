@@ -25,6 +25,7 @@ export class CoursesController {
     return this.coursesService.findAll(+page, +limit, search, user);
   }
 
+  @ResponseMessage("Get course by id")
   @Get(':id')
   findOne(@Param('id') id: string, @User() user: IUser) {
     return this.coursesService.findOne(id, user);
@@ -36,8 +37,9 @@ export class CoursesController {
     return this.coursesService.update(id, updateCourseDto, user);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.coursesService.remove(+id);
+  @ResponseMessage("Delete course by id")
+  @Delete()
+  remove(@Body("courseId") courseId: string) {
+    return this.coursesService.remove(courseId);
   }
 }

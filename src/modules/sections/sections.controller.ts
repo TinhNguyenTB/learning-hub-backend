@@ -25,6 +25,7 @@ export class SectionsController {
     return this.sectionsService.findOne(id, courseId);
   }
 
+  @ResponseMessage("Update section")
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSectionDto: UpdateSectionDto, @User() user: IUser) {
     return this.sectionsService.update(id, updateSectionDto, user);
@@ -36,6 +37,7 @@ export class SectionsController {
     return this.sectionsService.reorder(reorderDto, user);
   }
 
+  @ResponseMessage("Delete section by id")
   @Delete(':id')
   remove(@Param('id') id: string, @Body("courseId") courseId: string, @User() user: IUser) {
     return this.sectionsService.remove(id, courseId, user);
