@@ -10,6 +10,7 @@ export class SectionsService {
   ) { }
 
   async create(createSectionDto: CreateSectionDto, user: IUser) {
+    // check course exist
     const course = await this.prisma.course.findUnique({
       where: {
         id: createSectionDto.courseId,
@@ -56,6 +57,7 @@ export class SectionsService {
   }
 
   async update(id: string, updateSectionDto: UpdateSectionDto, user: IUser) {
+    // check course exist
     const course = await this.prisma.course.findUnique({
       where: {
         id: updateSectionDto.courseId,
@@ -68,6 +70,7 @@ export class SectionsService {
     if (!course) {
       return new NotFoundException("Course not found")
     }
+    // update section
     const { title, description, videoUrl, isFree, videoDuration } = updateSectionDto
     const section = await this.prisma.section.update({
       where: {
@@ -81,6 +84,7 @@ export class SectionsService {
         isFree: isFree ?? false
       }
     })
+    // Update course duration
     if (videoUrl && videoUrl !== section.videoUrl) {
       await this.prisma.course.update({
         where: {
@@ -95,6 +99,7 @@ export class SectionsService {
   }
 
   async reorder(reorderDto: ReorderSectionDto, user: IUser) {
+    // check course exist
     const course = await this.prisma.course.findUnique({
       where: {
         id: reorderDto.courseId,
@@ -104,6 +109,7 @@ export class SectionsService {
     if (!course) {
       return new NotFoundException("Course not found")
     }
+    // update position of sections
     for (let item of reorderDto.list) {
       await this.prisma.section.update({
         where: {
@@ -119,7 +125,51 @@ export class SectionsService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} section`;
+  async remove(id: string, courseId: string, user: IUser) {
+    // check course exist
+    const course = await this.prisma.course.findUnique({
+      where: {
+        id: courseId,
+        instructorId: user.id
+      }
+    })
+    if (!course) {
+      return new NotFoundException("Course not found")
+    }
+    // check section exist
+    const section = await this.prisma.section.findUnique({
+      where: {
+        id,
+        courseId
+      }
+    })
+    if (!section) {
+      return new NotFoundException("Section not found");
+    }
+    // find published sections in course
+    const publishedSectionsInCourse = await this.prisma.section.findMany({
+      where: {
+        courseId,
+        isPublished: true
+      }
+    })
+    // unpublish course
+    if (!publishedSectionsInCourse.length) {
+      await this.prisma.course.update({
+        where: {
+          id: courseId,
+        },
+        data: {
+          isPublished: false
+        }
+      })
+    }
+    // delete section
+    return await this.prisma.section.delete({
+      where: {
+        id,
+        courseId
+      }
+    })
   }
 }

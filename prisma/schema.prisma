@@ -39,7 +39,7 @@ model Course {
   isPublished Boolean @default(false)
 
   instructorId String
-  Instructor   User   @relation(fields: [instructorId], references: [id])
+  Instructor   User   @relation(fields: [instructorId], references: [id], onDelete: Cascade)
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id])
