@@ -50,6 +50,9 @@ model Course {
   levelId String?
   level   Level?  @relation(fields: [levelId], references: [id])
 
+  statusId String?
+  status   Status? @relation(fields: [statusId], references: [id])
+
   sections  Section[]
   purchases Purchase[]
   comments  Comment[]
@@ -85,6 +88,12 @@ model SubCategory {
 }
 
 model Level {
+  id      String   @id @default(uuid())
+  name    String   @unique
+  courses Course[]
+}
+
+model Status {
   id      String   @id @default(uuid())
   name    String   @unique
   courses Course[]
