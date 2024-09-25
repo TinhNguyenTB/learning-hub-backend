@@ -29,6 +29,19 @@ export class UpdateSectionDto extends PartialType(CreateSectionDto) {
     videoDuration: number
 }
 
+export class PublishSectionDto {
+    @IsNotEmpty()
+    @IsString()
+    courseId: string
+
+    @IsNotEmpty()
+    @IsString()
+    sectionId: string
+
+    @IsBoolean()
+    isPublish: boolean
+}
+
 export class ReorderSectionDto {
     @IsArray()
     @ValidateNested()

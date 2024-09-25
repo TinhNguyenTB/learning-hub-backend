@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSectionDto } from './dto/create-section.dto';
-import { ReorderSectionDto, UpdateSectionDto } from './dto/update-section.dto';
+import { PublishSectionDto, ReorderSectionDto, UpdateSectionDto } from './dto/update-section.dto';
 import { PrismaService } from '@/prisma.service';
 
 @Injectable()
@@ -172,4 +172,40 @@ export class SectionsService {
       }
     })
   }
+
+  async publish(publishSectionDto: PublishSectionDto, user: IUser) {
+    // check course exist
+    const course = await this.prisma.course.findUnique({
+      where: {
+        id: publishSectionDto.courseId,
+        instructorId: user.id
+      }
+    })
+    if (!course) {
+      return new NotFoundException("Course not found")
+    }
+    // check section exist
+    const section = await this.prisma.section.findUnique({
+      where: {
+        id: publishSectionDto.sectionId,
+        courseId: publishSectionDto.courseId
+      }
+    })
+    if (!section) {
+      return new NotFoundException("Section not found")
+    }
+    if (!section.title || !section.description || !section.videoUrl) {
+      return new BadRequestException("Missing required fields")
+    }
+    return await this.prisma.section.update({
+      where: {
+        id: publishSectionDto.sectionId,
+        courseId: publishSectionDto.courseId
+      },
+      data: {
+        isPublished: publishSectionDto.isPublish
+      }
+    })
+  }
+
 }

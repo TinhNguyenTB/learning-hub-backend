@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { SectionsService } from './sections.service';
 import { CreateSectionDto } from './dto/create-section.dto';
-import { ReorderSectionDto, UpdateSectionDto } from './dto/update-section.dto';
+import { PublishSectionDto, ReorderSectionDto, UpdateSectionDto } from './dto/update-section.dto';
 import { ResponseMessage, User } from '@/decorator/customize';
 
 @Controller('sections')
@@ -41,5 +41,11 @@ export class SectionsController {
   @Delete(':id')
   remove(@Param('id') id: string, @Body("courseId") courseId: string, @User() user: IUser) {
     return this.sectionsService.remove(id, courseId, user);
+  }
+
+  @ResponseMessage("Publish a section")
+  @Post('publish')
+  publish(@Body() publishSectionDto: PublishSectionDto, @User() user: IUser) {
+    return this.sectionsService.publish(publishSectionDto, user);
   }
 }
