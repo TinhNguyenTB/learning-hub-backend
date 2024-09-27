@@ -17,7 +17,8 @@ export class CoursesService {
         title,
         categoryId,
         subCategoryId,
-        instructorId: user.id
+        instructorId: user.id,
+        statusName: "PENDING"
       }
     })
     return {
@@ -142,7 +143,7 @@ export class CoursesService {
           instructorId: user.id
         },
         data: {
-          isPublished: publishCourseDto.isPublish
+          isPublished: publishCourseDto.isPublish,
         }
       })
     }
