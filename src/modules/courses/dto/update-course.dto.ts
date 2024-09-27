@@ -25,3 +25,15 @@ export class UpdateCourseDto extends PartialType(CreateCourseDto) {
     @IsString()
     levelId: string
 }
+
+export class PublishCourseDto {
+    @IsNotEmpty()
+    @IsString()
+    courseId: string
+
+    @IsOptional()
+    sectionId: string
+
+    @IsBoolean()
+    isPublish: boolean
+}

@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 const saltRounds = 10;
 
@@ -27,3 +28,15 @@ export function generateOTP() {
 
     return otp;
 }
+
+export function validateFields(data: { [key: string]: any }, requiredFields: string[]) {
+    // Loop through each field in the requiredFields array and check if it's missing or falsy
+    for (const field of requiredFields) {
+        if (!data[field]) {
+            throw new BadRequestException(`Missing required field`);
+        }
+    }
+    // If all fields are present, return true
+    return true;
+}
+

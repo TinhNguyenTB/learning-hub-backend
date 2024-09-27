@@ -17,7 +17,7 @@ export class ResourcesService {
       }
     })
     if (!course) {
-      return new NotFoundException("Course not found")
+      throw new NotFoundException("Course not found")
     }
 
     const section = await this.prisma.section.findUnique({
@@ -27,7 +27,7 @@ export class ResourcesService {
       }
     })
     if (!section) {
-      return new NotFoundException("Section not found")
+      throw new NotFoundException("Section not found")
     }
 
     const { name, fileUrl } = createResourceDto

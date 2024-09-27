@@ -18,7 +18,7 @@ export class SectionsService {
       }
     })
     if (!course) {
-      return new NotFoundException("Course not found")
+      throw new NotFoundException("Course not found")
     }
     const lastSection = await this.prisma.section.findFirst({
       where: {
@@ -68,7 +68,7 @@ export class SectionsService {
       }
     })
     if (!course) {
-      return new NotFoundException("Course not found")
+      throw new NotFoundException("Course not found")
     }
     // update section
     const { title, description, videoUrl, isFree, videoDuration } = updateSectionDto
@@ -107,7 +107,7 @@ export class SectionsService {
       }
     })
     if (!course) {
-      return new NotFoundException("Course not found")
+      throw new NotFoundException("Course not found")
     }
     // update position of sections
     for (let item of reorderDto.list) {
@@ -134,7 +134,7 @@ export class SectionsService {
       }
     })
     if (!course) {
-      return new NotFoundException("Course not found")
+      throw new NotFoundException("Course not found")
     }
     // check section exist
     const section = await this.prisma.section.findUnique({
@@ -144,7 +144,7 @@ export class SectionsService {
       }
     })
     if (!section) {
-      return new NotFoundException("Section not found");
+      throw new NotFoundException("Section not found");
     }
     // find published sections in course
     const publishedSectionsInCourse = await this.prisma.section.findMany({
@@ -182,7 +182,7 @@ export class SectionsService {
       }
     })
     if (!course) {
-      return new NotFoundException("Course not found")
+      throw new NotFoundException("Course not found")
     }
     // check section exist
     const section = await this.prisma.section.findUnique({
@@ -192,10 +192,10 @@ export class SectionsService {
       }
     })
     if (!section) {
-      return new NotFoundException("Section not found")
+      throw new NotFoundException("Section not found")
     }
     if (!section.title || !section.description || !section.videoUrl) {
-      return new BadRequestException("Missing required fields")
+      throw new BadRequestException("Missing required fields")
     }
     return await this.prisma.section.update({
       where: {

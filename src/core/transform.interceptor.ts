@@ -6,7 +6,7 @@ import {
     CallHandler,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 export interface Response<T> {
@@ -28,6 +28,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
                         .get<string>(RESPONSE_MESSAGE, context.getHandler()) || '',
                     data: data
                 })),
+
             );
     }
 }

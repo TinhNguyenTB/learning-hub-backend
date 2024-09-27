@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
-import { UpdateCourseDto } from './dto/update-course.dto';
+import { PublishCourseDto, UpdateCourseDto } from './dto/update-course.dto';
 import { PrismaService } from '@/prisma.service';
+import { validateFields } from '@/helpers/utils';
 
 @Injectable()
 export class CoursesService {
@@ -101,7 +102,7 @@ export class CoursesService {
       },
     })
     if (!course) {
-      return new NotFoundException("Course not found")
+      throw new NotFoundException("Course not found")
     }
 
     return await this.prisma.course.delete({
@@ -110,4 +111,41 @@ export class CoursesService {
       }
     })
   }
+
+  async publish(publishCourseDto: PublishCourseDto, user: IUser) {
+    // check course exist
+    const course = await this.prisma.course.findUnique({
+      where: {
+        id: publishCourseDto.courseId,
+        instructorId: user.id
+      },
+      include: {
+        sections: true
+      }
+    })
+    if (!course) {
+      throw new NotFoundException("Course not found")
+    }
+    // check course validity before publishing
+    const isPublishedSections = course.sections.some(section => section.isPublished);
+    if (!isPublishedSections) {
+      throw new BadRequestException("This course does not have any published section")
+    }
+
+    const requiredFields = ['title', 'description', 'categoryId', 'subCategoryId', 'levelId', 'imageUrl', 'price'];
+    const isValid = validateFields(course, requiredFields);
+
+    if (isValid) {
+      return await this.prisma.course.update({
+        where: {
+          id: publishCourseDto.courseId,
+          instructorId: user.id
+        },
+        data: {
+          isPublished: publishCourseDto.isPublish
+        }
+      })
+    }
+  }
+
 }

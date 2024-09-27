@@ -1,18 +1,31 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from '@/app.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { TransformInterceptor } from '@/core/transform.interceptor';
+import { JwtAuthGuard } from '@/auth/passport/jwt-auth.guard';
+import { HttpExceptionFilter } from '@/core/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
   const port = configService.get('PORT');
+  const reflector = app.get(Reflector);
 
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true
   }));
+
+  // Enable interceptor globally
+  app.useGlobalInterceptors(new TransformInterceptor(reflector));
+
+  // Enable HttpExceptionFilter globally
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Enable authentication globally
+  app.useGlobalGuards(new JwtAuthGuard(reflector));
 
   app.setGlobalPrefix('api', { exclude: [''] })
 

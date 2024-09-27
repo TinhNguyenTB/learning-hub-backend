@@ -12,9 +12,6 @@ import { ResourcesModule } from '@/modules/resources/resources.module';
 import { SectionsModule } from '@/modules/sections/sections.module';
 import { SubcategoriesModule } from '@/modules/subcategories/subcategories.module';
 import { AuthModule } from '@/auth/auth.module';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { JwtAuthGuard } from '@/auth/passport/jwt-auth.guard';
-import { TransformInterceptor } from '@/core/transform.interceptor';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
@@ -62,16 +59,6 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     }),
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: TransformInterceptor,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule { }
