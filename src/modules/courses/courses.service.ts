@@ -26,13 +26,24 @@ export class CoursesService {
     }
   }
 
-  async findAll(page: number, limit: number, search: string, user: IUser) {
-    if (!page) page = 1;
-    if (!limit) limit = 10;
-    if (!search) search = ""
-    const skip = page > 1 ? (page - 1) * limit : 0;
+  async findAllPagination(current: number, pageSize: number, search: string) {
+    if (!current) current = 1;
+    if (!pageSize) pageSize = 10;
+    if (!search) search = "";
+
+    const skip = current > 1 ? (current - 1) * pageSize : 0;
+
+    const total = await this.prisma.course.count({
+      where: {
+        OR: [
+          { title: { contains: search } },
+          { subTitle: { contains: search } },
+        ],
+      },
+    });
+
     const result = await this.prisma.course.findMany({
-      take: limit,
+      take: pageSize,
       skip: skip,
       where: {
         OR: [
@@ -43,28 +54,31 @@ export class CoursesService {
             subTitle: { contains: search }
           }
         ],
-        AND: [
-          {
-            instructorId: user.id
-          }
-        ]
       },
       orderBy: {
         createdAt: 'desc'
       }
     })
-    const total = result.length;
-    const totalPages = Math.ceil(total / limit);
+
+    const totalPages = Math.ceil(total / pageSize);
 
     return {
       meta: {
-        current: page, //trang hiện tại
-        pageSize: limit, //số lượng bản ghi đã lấy
+        current: current, //trang hiện tại
+        pageSize: pageSize, //số lượng bản ghi đã lấy
         pages: totalPages, //tổng số trang với điều kiện query
         total: total // tổng số phần tử (số bản ghi)
       },
       result //kết quả query
     }
+  }
+
+  async findAll(user: IUser) {
+    return await this.prisma.course.findMany({
+      where: {
+        instructorId: user.id
+      }
+    })
   }
 
   async findOne(id: string, user: IUser) {

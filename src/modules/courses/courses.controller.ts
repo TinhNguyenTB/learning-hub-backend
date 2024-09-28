@@ -16,13 +16,18 @@ export class CoursesController {
 
   @Get()
   @ResponseMessage("Get courses pagination")
-  findAll(
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+  findAllPagination(
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
     @Query('search') search: string,
-    @User() user: IUser
   ) {
-    return this.coursesService.findAll(+page, +limit, search, user);
+    return this.coursesService.findAllPagination(+current, +pageSize, search);
+  }
+
+  @Get("instructor")
+  @ResponseMessage("Get courses for instructor")
+  findAll(@User() user: IUser) {
+    return this.coursesService.findAll(user);
   }
 
   @ResponseMessage("Get course by id")
