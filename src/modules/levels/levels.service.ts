@@ -16,8 +16,12 @@ export class LevelsService {
     return await this.prisma.level.findMany({});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} level`;
+  async findOne(id: string) {
+    return await this.prisma.level.findUnique({
+      where: {
+        id
+      }
+    })
   }
 
   update(id: number, updateLevelDto: UpdateLevelDto) {

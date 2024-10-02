@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { PublishCourseDto, UpdateCourseDto } from './dto/update-course.dto';
-import { ResponseMessage, User } from '@/decorator/customize';
+import { Public, ResponseMessage, User } from '@/decorator/customize';
 
 @Controller('courses')
 export class CoursesController {
@@ -15,13 +15,15 @@ export class CoursesController {
   }
 
   @Get()
+  @Public()
   @ResponseMessage("Get courses pagination")
   findAllPagination(
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
+    @Query('categoryId') categoryId: string,
     @Query('search') search: string,
   ) {
-    return this.coursesService.findAllPagination(+current, +pageSize, search);
+    return this.coursesService.findAllPagination(+current, +pageSize, categoryId, search);
   }
 
   @Get("instructor")

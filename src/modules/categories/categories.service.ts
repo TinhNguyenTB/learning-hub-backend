@@ -19,7 +19,11 @@ export class CategoriesService {
         name: 'asc'
       },
       include: {
-        subCategories: true
+        subCategories: {
+          orderBy: {
+            name: 'asc'
+          },
+        }
       }
     });
   }

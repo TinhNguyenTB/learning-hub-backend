@@ -20,9 +20,11 @@ export class LevelsController {
     return this.levelsService.findAll();
   }
 
+  @Public()
+  @ResponseMessage("Get level by id")
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.levelsService.findOne(+id);
+    return this.levelsService.findOne(id);
   }
 
   @Patch(':id')

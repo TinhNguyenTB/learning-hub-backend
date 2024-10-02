@@ -26,7 +26,7 @@ export class CoursesService {
     }
   }
 
-  async findAllPagination(current: number, pageSize: number, search: string) {
+  async findAllPagination(current: number, pageSize: number, categoryId: string, search: string) {
     if (!current) current = 1;
     if (!pageSize) pageSize = 10;
     if (!search) search = "";
@@ -39,6 +39,10 @@ export class CoursesService {
           { title: { contains: search } },
           { subTitle: { contains: search } },
         ],
+        AND: [
+          // { statusName: "APPROVED" },
+          ...(categoryId ? [{ categoryId }] : []),
+        ]
       },
     });
 
@@ -47,13 +51,23 @@ export class CoursesService {
       skip: skip,
       where: {
         OR: [
-          {
-            title: { contains: search }
-          },
-          {
-            subTitle: { contains: search }
-          }
+          { title: { contains: search } },
+          { subTitle: { contains: search } },
         ],
+        AND: [
+          // { statusName: "APPROVED" },
+          ...(categoryId ? [{ categoryId }] : []),
+        ]
+      },
+      include: {
+        category: true,
+        subCategory: true,
+        level: true,
+        sections: {
+          where: {
+            isPublished: true
+          }
+        }
       },
       orderBy: {
         createdAt: 'desc'
