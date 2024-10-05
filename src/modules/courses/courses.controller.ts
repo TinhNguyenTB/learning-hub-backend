@@ -32,10 +32,17 @@ export class CoursesController {
     return this.coursesService.findAll(user);
   }
 
-  @ResponseMessage("Get course by id")
+  @ResponseMessage("Get course by id for instructor")
   @Get(':id')
   findOne(@Param('id') id: string, @User() user: IUser) {
     return this.coursesService.findOne(id, user);
+  }
+
+  @Public()
+  @ResponseMessage("Get course by id for student")
+  @Get(':id/published')
+  findOneForStudent(@Param('id') id: string) {
+    return this.coursesService.findOneForStudent(id);
   }
 
   @ResponseMessage("Update course")

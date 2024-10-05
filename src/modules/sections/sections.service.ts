@@ -40,8 +40,19 @@ export class SectionsService {
     })
   }
 
-  findAll() {
-    return `This action returns all sections`;
+  async findAll(courseId: string) {
+    if (!courseId) {
+      throw new BadRequestException("courseId cannot be empty")
+    }
+    return this.prisma.section.findMany({
+      where: {
+        courseId,
+        isPublished: true
+      },
+      orderBy: {
+        position: 'asc'
+      }
+    })
   }
 
   async findOne(id: string, courseId: string) {

@@ -27,8 +27,8 @@ export class CoursesService {
   }
 
   async findAllPagination(current: number, pageSize: number, categoryId: string, search: string) {
-    if (!current) current = 1;
-    if (!pageSize) pageSize = 10;
+    if (!current || current < 1) current = 1;
+    if (!pageSize || pageSize < 1) pageSize = 10;
     if (!search) search = "";
 
     const skip = current > 1 ? (current - 1) * pageSize : 0;
@@ -37,11 +37,13 @@ export class CoursesService {
       where: {
         OR: [
           { title: { contains: search } },
-          { subTitle: { contains: search } },
+          { category: { name: { contains: search } } },
+          { subCategory: { name: { contains: search } } },
         ],
         AND: [
           // { statusName: "APPROVED" },
           ...(categoryId ? [{ categoryId }] : []),
+          // { isPublished: true }
         ]
       },
     });
@@ -52,11 +54,13 @@ export class CoursesService {
       where: {
         OR: [
           { title: { contains: search } },
-          { subTitle: { contains: search } },
+          { category: { name: { contains: search } } },
+          { subCategory: { name: { contains: search } } },
         ],
         AND: [
           // { statusName: "APPROVED" },
           ...(categoryId ? [{ categoryId }] : []),
+          // { isPublished: true }
         ]
       },
       include: {
@@ -103,6 +107,24 @@ export class CoursesService {
       },
       include: {
         sections: {
+          orderBy: {
+            position: 'asc'
+          }
+        }
+      }
+    })
+  }
+
+  async findOneForStudent(id: string) {
+    return await this.prisma.course.findUnique({
+      where: {
+        id
+      },
+      include: {
+        sections: {
+          where: {
+            isPublished: true
+          },
           orderBy: {
             position: 'asc'
           }

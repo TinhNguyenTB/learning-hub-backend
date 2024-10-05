@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
 import { SectionsService } from './sections.service';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { PublishSectionDto, ReorderSectionDto, UpdateSectionDto } from './dto/update-section.dto';
-import { ResponseMessage, User } from '@/decorator/customize';
+import { Public, ResponseMessage, User } from '@/decorator/customize';
 
 @Controller('sections')
 export class SectionsController {
@@ -14,9 +14,11 @@ export class SectionsController {
     return this.sectionsService.create(createSectionDto, user);
   }
 
-  @Get()
-  findAll() {
-    return this.sectionsService.findAll();
+  @ResponseMessage("Get published sections")
+  @Public()
+  @Get("published")
+  findAll(@Query("courseId") courseId: string) {
+    return this.sectionsService.findAll(courseId);
   }
 
   @ResponseMessage("Get section by id")
