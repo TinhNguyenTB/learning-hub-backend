@@ -25,8 +25,8 @@ export class StatusService {
     });
   }
 
-  findAll() {
-    return `This action returns all status`;
+  async findAll() {
+    return await this.prisma.status.findMany();
   }
 
   findOne(id: number) {

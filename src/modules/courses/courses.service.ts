@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
-import { PublishCourseDto, UpdateCourseDto } from './dto/update-course.dto';
+import { ChangeStatusCourseDto, PublishCourseDto, UpdateCourseDto } from './dto/update-course.dto';
 import { PrismaService } from '@/prisma.service';
 import { validateFields } from '@/helpers/utils';
 
@@ -64,9 +64,29 @@ export class CoursesService {
         ]
       },
       include: {
-        category: true,
-        subCategory: true,
-        level: true,
+        category: {
+          select: {
+            name: true,
+            id: true
+          }
+        },
+        instructor: {
+          select: {
+            name: true
+          }
+        },
+        subCategory: {
+          select: {
+            name: true,
+            id: true
+          }
+        },
+        level: {
+          select: {
+            name: true,
+            id: true
+          }
+        },
         sections: {
           where: {
             isPublished: true
@@ -197,6 +217,26 @@ export class CoursesService {
         }
       })
     }
+  }
+
+  async changeStatus(data: ChangeStatusCourseDto) {
+    // check course exist
+    const course = await this.prisma.course.findUnique({
+      where: {
+        id: data.id
+      }
+    })
+    if (!course) {
+      throw new NotFoundException("Course not found")
+    }
+    return await this.prisma.course.update({
+      where: {
+        id: data.id
+      },
+      data: {
+        statusName: data.statusName
+      }
+    })
   }
 
 }

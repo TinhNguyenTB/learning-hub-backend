@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { StatusService } from './status.service';
 import { CreateStatusDto } from './dto/create-status.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
-import { ResponseMessage } from '@/decorator/customize';
+import { Public, ResponseMessage } from '@/decorator/customize';
 
 @Controller('status')
 export class StatusController {
@@ -15,6 +15,8 @@ export class StatusController {
   }
 
   @Get()
+  @Public()
+  @ResponseMessage("Get all status")
   findAll() {
     return this.statusService.findAll();
   }

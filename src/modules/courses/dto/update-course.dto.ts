@@ -37,3 +37,13 @@ export class PublishCourseDto {
     @IsBoolean()
     isPublish: boolean
 }
+
+export class ChangeStatusCourseDto {
+    @IsNotEmpty()
+    @IsString()
+    id: string
+
+    @IsNotEmpty()
+    @IsString()
+    statusName: string
+}

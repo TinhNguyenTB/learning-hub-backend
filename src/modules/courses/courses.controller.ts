@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
-import { PublishCourseDto, UpdateCourseDto } from './dto/update-course.dto';
+import { ChangeStatusCourseDto, PublishCourseDto, UpdateCourseDto } from './dto/update-course.dto';
 import { Public, ResponseMessage, User } from '@/decorator/customize';
 
 @Controller('courses')
@@ -51,6 +51,7 @@ export class CoursesController {
     return this.coursesService.update(id, updateCourseDto, user);
   }
 
+  @Public()
   @ResponseMessage("Delete course by id")
   @Delete()
   remove(@Body("courseId") courseId: string) {
@@ -61,5 +62,12 @@ export class CoursesController {
   @ResponseMessage("Publish a course")
   publish(@Body() publishCourseDto: PublishCourseDto, @User() user: IUser) {
     return this.coursesService.publish(publishCourseDto, user);
+  }
+
+  @Public()
+  @Post("change-status")
+  @ResponseMessage("Change course status")
+  changeStatus(@Body() data: ChangeStatusCourseDto) {
+    return this.coursesService.changeStatus(data);
   }
 }
