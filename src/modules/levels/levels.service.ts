@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateLevelDto } from './dto/create-level.dto';
 import { UpdateLevelDto } from './dto/update-level.dto';
 import { PrismaService } from '@/prisma.service';
@@ -8,8 +8,21 @@ export class LevelsService {
   constructor(
     private prisma: PrismaService
   ) { }
-  create(createLevelDto: CreateLevelDto) {
-    return 'This action adds a new level';
+
+  async create(createLevelDto: CreateLevelDto) {
+    const isExist = await this.prisma.level.findFirst({
+      where: {
+        name: createLevelDto.name
+      }
+    })
+    if (isExist) {
+      throw new BadRequestException(`Level ${createLevelDto.name} already exist`)
+    }
+    return await this.prisma.level.create({
+      data: {
+        name: createLevelDto.name
+      }
+    })
   }
 
   async findAll() {
@@ -24,11 +37,34 @@ export class LevelsService {
     })
   }
 
-  update(id: number, updateLevelDto: UpdateLevelDto) {
-    return `This action updates a #${id} level`;
+  async update(id: string, updateLevelDto: UpdateLevelDto) {
+    const isExist = await this.prisma.level.findUnique({
+      where: {
+        id
+      }
+    })
+    if (!isExist) {
+      throw new BadRequestException(`Not found level`)
+    }
+    return this.prisma.level.update({
+      where: { id },
+      data: { name: updateLevelDto.name }
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} level`;
+  async remove(id: string) {
+    const isExist = await this.prisma.level.findUnique({
+      where: {
+        id
+      }
+    })
+    if (!isExist) {
+      throw new BadRequestException(`Not found level`)
+    }
+    return await this.prisma.level.delete({
+      where: {
+        id
+      }
+    })
   }
 }

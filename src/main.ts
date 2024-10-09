@@ -4,7 +4,6 @@ import { ConfigService } from '@nestjs/config';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { TransformInterceptor } from '@/core/transform.interceptor';
 import { JwtAuthGuard } from '@/auth/passport/jwt-auth.guard';
-import { HttpExceptionFilter } from '@/core/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,9 +19,6 @@ async function bootstrap() {
 
   // Enable interceptor globally
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
-
-  // Enable HttpExceptionFilter globally
-  app.useGlobalFilters(new HttpExceptionFilter());
 
   // Enable authentication globally
   app.useGlobalGuards(new JwtAuthGuard(reflector));

@@ -9,6 +9,8 @@ export class LevelsController {
   constructor(private readonly levelsService: LevelsService) { }
 
   @Post()
+  @Public()
+  @ResponseMessage("Create a new level")
   create(@Body() createLevelDto: CreateLevelDto) {
     return this.levelsService.create(createLevelDto);
   }
@@ -28,12 +30,16 @@ export class LevelsController {
   }
 
   @Patch(':id')
+  @Public()
+  @ResponseMessage("Update level by id")
   update(@Param('id') id: string, @Body() updateLevelDto: UpdateLevelDto) {
-    return this.levelsService.update(+id, updateLevelDto);
+    return this.levelsService.update(id, updateLevelDto);
   }
 
   @Delete(':id')
+  @Public()
+  @ResponseMessage("Delete level by id")
   remove(@Param('id') id: string) {
-    return this.levelsService.remove(+id);
+    return this.levelsService.remove(id);
   }
 }

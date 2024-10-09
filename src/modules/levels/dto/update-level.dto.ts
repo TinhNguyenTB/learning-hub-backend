@@ -5,5 +5,5 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class UpdateLevelDto extends PartialType(CreateLevelDto) {
     @IsNotEmpty()
     @IsString()
-    id: string
+    name: string
 }
