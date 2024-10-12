@@ -72,7 +72,8 @@ export class CoursesService {
         },
         instructor: {
           select: {
-            name: true
+            name: true,
+            id: true
           }
         },
         subCategory: {

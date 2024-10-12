@@ -8,6 +8,8 @@ import { Public, ResponseMessage } from '@/decorator/customize';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) { }
 
+  @Public()
+  @ResponseMessage("Create a new category")
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
@@ -25,13 +27,17 @@ export class CategoriesController {
     return this.categoriesService.findOne(+id);
   }
 
+  @Public()
+  @ResponseMessage("Update category")
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+    return this.categoriesService.update(id, updateCategoryDto);
   }
 
+  @Public()
+  @ResponseMessage("Delete category by id")
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+    return this.categoriesService.remove(id);
   }
 }

@@ -46,6 +46,12 @@ export class LevelsService {
     if (!isExist) {
       throw new BadRequestException(`Not found level`)
     }
+    const level = await this.prisma.level.findUnique({
+      where: { name: updateLevelDto.name }
+    })
+    if (level) {
+      throw new BadRequestException(`Level ${updateLevelDto.name} already exist`);
+    }
     return this.prisma.level.update({
       where: { id },
       data: { name: updateLevelDto.name }
