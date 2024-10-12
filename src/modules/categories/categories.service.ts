@@ -41,6 +41,9 @@ export class CategoriesService {
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+    if (!id) {
+      throw new BadRequestException(`Missing required parameter`)
+    }
     const isExist = await this.prisma.category.findUnique({
       where: { id }
     })
