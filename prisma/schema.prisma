@@ -27,6 +27,7 @@ model User {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 }
 
 model Course {
@@ -63,6 +64,7 @@ model Course {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 
   @@index([categoryId])
   @@index([subCategoryId])
@@ -75,6 +77,10 @@ model Category {
   name          String        @unique
   subCategories SubCategory[]
   courses       Course[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 }
 
 model SubCategory {
@@ -84,6 +90,10 @@ model SubCategory {
   category   Category @relation(fields: [categoryId], references: [id])
   courses    Course[]
 
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
+
   @@index([categoryId])
 }
 
@@ -91,12 +101,20 @@ model Level {
   id      String   @id @default(uuid())
   name    String   @unique
   courses Course[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 }
 
 model Status {
   id      String   @id @default(uuid())
   name    String   @unique
   courses Course[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 }
 
 model Section {
@@ -116,6 +134,7 @@ model Section {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 
   @@index([courseId])
 }
@@ -130,6 +149,7 @@ model Resource {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 
   @@index([sectionId])
 }
@@ -147,6 +167,7 @@ model Progress {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 
   @@unique([studentId, sectionId])
   @@index([sectionId])
@@ -163,6 +184,7 @@ model Purchase {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 
   @@unique([customerId, courseId])
   @@index([courseId])
@@ -175,31 +197,36 @@ model StripeCustomer {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 }
 
 model Comment {
-  id        String    @id @default(uuid())
-  content   String
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  courseId  String
-  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  content  String
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 
   @@index([userId, courseId])
 }
 
 model Rating {
-  id        String    @id @default(uuid())
-  content   String
-  quality   Float
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  courseId  String
-  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  content  String
+  quality  Float
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
+  deleted   Boolean   @default(false)
 
   @@unique([userId, courseId])
   @@index([userId, courseId])
