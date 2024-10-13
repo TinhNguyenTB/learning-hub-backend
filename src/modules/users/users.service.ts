@@ -106,8 +106,16 @@ export class UsersService {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id }
+    })
+    if (!user) {
+      throw new BadRequestException("User not found")
+    }
+    return await this.prisma.user.delete({
+      where: { id },
+    })
   }
 
   sendEmailActivate(user: User, codeId: string, codeExpired: number) {
