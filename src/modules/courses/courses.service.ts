@@ -43,6 +43,7 @@ export class CoursesService {
         AND: [
           // { statusName: "APPROVED" },
           ...(categoryId ? [{ categoryId }] : []),
+          { deleted: false }
           // { isPublished: true }
         ]
       },
@@ -60,6 +61,7 @@ export class CoursesService {
         AND: [
           // { statusName: "APPROVED" },
           ...(categoryId ? [{ categoryId }] : []),
+          { deleted: false }
           // { isPublished: true }
         ]
       },
@@ -115,7 +117,8 @@ export class CoursesService {
   async findAll(user: IUser) {
     return await this.prisma.course.findMany({
       where: {
-        instructorId: user.id
+        instructorId: user.id,
+        deleted: false
       }
     })
   }
@@ -124,7 +127,8 @@ export class CoursesService {
     return await this.prisma.course.findUnique({
       where: {
         id,
-        instructorId: user.id
+        instructorId: user.id,
+        deleted: false
       },
       include: {
         sections: {
@@ -139,7 +143,8 @@ export class CoursesService {
   async findOneForStudent(id: string) {
     return await this.prisma.course.findUnique({
       where: {
-        id
+        id,
+        deleted: false
       },
       include: {
         sections: {
@@ -168,7 +173,7 @@ export class CoursesService {
 
   async remove(courseId: string) {
     // check course exist
-    const course = await this.prisma.course.findUnique({
+    let course = await this.prisma.course.findUnique({
       where: {
         id: courseId
       },
@@ -176,12 +181,15 @@ export class CoursesService {
     if (!course) {
       throw new NotFoundException("Course not found")
     }
-
-    return await this.prisma.course.delete({
+    course = await this.prisma.course.update({
       where: {
         id: courseId
-      }
+      },
+      data: { deleted: true }
     })
+    return {
+      deleted: course.deleted
+    }
   }
 
   async publish(publishCourseDto: PublishCourseDto, user: IUser) {
@@ -224,7 +232,8 @@ export class CoursesService {
     // check course exist
     const course = await this.prisma.course.findUnique({
       where: {
-        id: data.id
+        id: data.id,
+        deleted: false
       }
     })
     if (!course) {

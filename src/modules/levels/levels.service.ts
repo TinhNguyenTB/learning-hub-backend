@@ -12,7 +12,8 @@ export class LevelsService {
   async create(createLevelDto: CreateLevelDto) {
     const isExist = await this.prisma.level.findFirst({
       where: {
-        name: createLevelDto.name
+        name: createLevelDto.name,
+        deleted: false
       }
     })
     if (isExist) {
@@ -32,22 +33,29 @@ export class LevelsService {
   async findOne(id: string) {
     return await this.prisma.level.findUnique({
       where: {
-        id
+        id,
+        deleted: false
       }
     })
   }
 
   async update(id: string, updateLevelDto: UpdateLevelDto) {
+    // check level exist by id
     const isExist = await this.prisma.level.findUnique({
       where: {
-        id
+        id,
+        deleted: false
       }
     })
     if (!isExist) {
-      throw new BadRequestException(`Not found level`)
+      throw new BadRequestException(`Level not found`)
     }
+    // check level exist by name
     const level = await this.prisma.level.findUnique({
-      where: { name: updateLevelDto.name }
+      where: {
+        name: updateLevelDto.name,
+        deleted: false
+      }
     })
     if (level) {
       throw new BadRequestException(`Level ${updateLevelDto.name} already exist`);
@@ -59,18 +67,27 @@ export class LevelsService {
   }
 
   async remove(id: string) {
-    const isExist = await this.prisma.level.findUnique({
-      where: {
-        id
-      }
-    })
-    if (!isExist) {
-      throw new BadRequestException(`Not found level`)
+    if (!id) {
+      throw new BadRequestException(`Missing required parameter`)
     }
-    return await this.prisma.level.delete({
+    let level = await this.prisma.level.findUnique({
       where: {
-        id
+        id,
+        deleted: false
       }
     })
+    if (!level) {
+      throw new BadRequestException(`Level not found`)
+    }
+    level = await this.prisma.level.update({
+      where: {
+        id,
+        deleted: false
+      },
+      data: { deleted: true }
+    })
+    return {
+      deleted: level.deleted
+    }
   }
 }

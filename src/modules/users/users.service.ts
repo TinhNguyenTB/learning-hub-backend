@@ -80,7 +80,8 @@ export class UsersService {
   async findOne(id: string) {
     return this.prisma.user.findUnique({
       where: {
-        id
+        id,
+        deleted: false
       },
       select: {
         name: true,
@@ -107,15 +108,24 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    const user = await this.prisma.user.findUnique({
+    let user = await this.prisma.user.findUnique({
       where: { id }
     })
     if (!user) {
       throw new BadRequestException("User not found")
     }
-    return await this.prisma.user.delete({
-      where: { id },
+    user = await this.prisma.user.update({
+      where: {
+        id,
+        deleted: false
+      },
+      data: {
+        deleted: true
+      }
     })
+    return {
+      deleted: user.deleted
+    }
   }
 
   sendEmailActivate(user: User, codeId: string, codeExpired: number) {

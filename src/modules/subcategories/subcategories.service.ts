@@ -23,6 +23,9 @@ export class SubcategoriesService {
         OR: [
           { name: { contains: search } },
         ],
+        AND: [
+          { deleted: false }
+        ]
       },
     });
 
@@ -33,6 +36,9 @@ export class SubcategoriesService {
         OR: [
           { name: { contains: search } },
         ],
+        AND: [
+          { deleted: false }
+        ]
       },
       include: {
         category: {
@@ -67,16 +73,23 @@ export class SubcategoriesService {
 
   async remove(id: string) {
     if (!id) {
-      throw new BadRequestException
+      throw new BadRequestException("Missing required parameter")
     }
-    const subcategory = await this.prisma.subCategory.findUnique({
-      where: { id }
+    let subcategory = await this.prisma.subCategory.findUnique({
+      where: {
+        id,
+        deleted: false
+      }
     })
     if (!subcategory) {
-      throw new BadRequestException("Not found subcategory")
+      throw new BadRequestException("Subcategory not found")
     }
-    return await this.prisma.subCategory.delete({
-      where: { id }
+    subcategory = await this.prisma.subCategory.update({
+      where: { id },
+      data: { deleted: true }
     })
+    return {
+      deleted: subcategory.deleted
+    }
   }
 }

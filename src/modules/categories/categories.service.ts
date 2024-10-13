@@ -23,6 +23,7 @@ export class CategoriesService {
 
   async findAll() {
     return await this.prisma.category.findMany({
+      where: { deleted: false },
       orderBy: {
         name: 'asc'
       },
@@ -44,14 +45,22 @@ export class CategoriesService {
     if (!id) {
       throw new BadRequestException(`Missing required parameter`)
     }
+    // check category exist by id
     const isExist = await this.prisma.category.findUnique({
-      where: { id }
+      where: {
+        id,
+        deleted: false
+      }
     })
     if (!isExist) {
-      throw new BadRequestException(`Not found category`)
+      throw new BadRequestException(`Category not found`)
     }
+    // check category exist by name
     const category = await this.prisma.category.findUnique({
-      where: { name: updateCategoryDto.name }
+      where: {
+        name: updateCategoryDto.name,
+        deleted: false
+      }
     })
     if (category) {
       throw new BadRequestException(`Category ${updateCategoryDto.name} already exist`);
@@ -63,14 +72,21 @@ export class CategoriesService {
   }
 
   async remove(id: string) {
-    const isExist = await this.prisma.category.findUnique({
-      where: { id }
+    let category = await this.prisma.category.findUnique({
+      where: {
+        id,
+        deleted: false
+      }
     })
-    if (!isExist) {
-      throw new BadRequestException(`Not found category`)
+    if (!category) {
+      throw new BadRequestException(`Category not found`)
     }
-    return await this.prisma.category.delete({
-      where: { id }
+    category = await this.prisma.category.update({
+      where: { id },
+      data: { deleted: true }
     })
+    return {
+      deleted: category.deleted
+    }
   }
 }

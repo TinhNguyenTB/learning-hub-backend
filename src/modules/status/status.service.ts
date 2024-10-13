@@ -11,17 +11,15 @@ export class StatusService {
     const { name } = createStatusDto;
     const isExist = await this.prisma.status.findFirst({
       where: {
-        name
+        name,
+        deleted: false
       }
     })
     if (isExist) {
       throw new BadRequestException(`${name} status  already exist`)
     }
-
     return await this.prisma.status.create({
-      data: {
-        name
-      }
+      data: { name }
     });
   }
 

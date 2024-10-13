@@ -14,7 +14,8 @@ export class SectionsService {
     const course = await this.prisma.course.findUnique({
       where: {
         id: createSectionDto.courseId,
-        instructorId: user.id
+        instructorId: user.id,
+        deleted: false
       }
     })
     if (!course) {
@@ -47,7 +48,8 @@ export class SectionsService {
     return this.prisma.section.findMany({
       where: {
         courseId,
-        isPublished: true
+        isPublished: true,
+        deleted: false
       },
       orderBy: {
         position: 'asc'
@@ -59,7 +61,8 @@ export class SectionsService {
     return await this.prisma.section.findUnique({
       where: {
         id,
-        courseId
+        courseId,
+        deleted: false
       },
       include: {
         resources: true,
@@ -72,7 +75,8 @@ export class SectionsService {
     const course = await this.prisma.course.findUnique({
       where: {
         id: updateSectionDto.courseId,
-        instructorId: user.id
+        instructorId: user.id,
+        deleted: false
       },
       select: {
         duration: true
@@ -86,7 +90,8 @@ export class SectionsService {
     const section = await this.prisma.section.update({
       where: {
         id,
-        courseId: updateSectionDto.courseId
+        courseId: updateSectionDto.courseId,
+        deleted: false
       },
       data: {
         title,
@@ -99,7 +104,8 @@ export class SectionsService {
     if (videoUrl && videoUrl !== section.videoUrl) {
       await this.prisma.course.update({
         where: {
-          id: updateSectionDto.courseId
+          id: updateSectionDto.courseId,
+          deleted: false
         },
         data: {
           duration: course.duration + videoDuration
@@ -114,7 +120,8 @@ export class SectionsService {
     const course = await this.prisma.course.findUnique({
       where: {
         id: reorderDto.courseId,
-        instructorId: user.id
+        instructorId: user.id,
+        deleted: false
       }
     })
     if (!course) {
@@ -141,17 +148,19 @@ export class SectionsService {
     const course = await this.prisma.course.findUnique({
       where: {
         id: courseId,
-        instructorId: user.id
+        instructorId: user.id,
+        deleted: false
       }
     })
     if (!course) {
       throw new NotFoundException("Course not found")
     }
     // check section exist
-    const section = await this.prisma.section.findUnique({
+    let section = await this.prisma.section.findUnique({
       where: {
         id,
-        courseId
+        courseId,
+        deleted: false
       }
     })
     if (!section) {
@@ -161,7 +170,8 @@ export class SectionsService {
     const publishedSectionsInCourse = await this.prisma.section.findMany({
       where: {
         courseId,
-        isPublished: true
+        isPublished: true,
+        deleted: false
       }
     })
     // unpublish course
@@ -169,6 +179,7 @@ export class SectionsService {
       await this.prisma.course.update({
         where: {
           id: courseId,
+          deleted: false
         },
         data: {
           isPublished: false
@@ -176,12 +187,17 @@ export class SectionsService {
       })
     }
     // delete section
-    return await this.prisma.section.delete({
+    section = await this.prisma.section.update({
       where: {
         id,
-        courseId
-      }
+        courseId,
+        deleted: false
+      },
+      data: { deleted: true }
     })
+    return {
+      deleted: section.deleted
+    }
   }
 
   async publish(publishSectionDto: PublishSectionDto, user: IUser) {
@@ -189,6 +205,7 @@ export class SectionsService {
     const course = await this.prisma.course.findUnique({
       where: {
         id: publishSectionDto.courseId,
+        deleted: false,
         instructorId: user.id
       }
     })
@@ -199,6 +216,7 @@ export class SectionsService {
     const section = await this.prisma.section.findUnique({
       where: {
         id: publishSectionDto.sectionId,
+        deleted: false,
         courseId: publishSectionDto.courseId
       }
     })
@@ -211,6 +229,7 @@ export class SectionsService {
     return await this.prisma.section.update({
       where: {
         id: publishSectionDto.sectionId,
+        deleted: false,
         courseId: publishSectionDto.courseId
       },
       data: {
