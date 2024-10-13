@@ -8,6 +8,7 @@ import { Public, ResponseMessage } from '@/decorator/customize';
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
+  @Public()
   @ResponseMessage("Create a new user")
   @Post()
   create(@Body() createUserDto: CreateUserDto) {

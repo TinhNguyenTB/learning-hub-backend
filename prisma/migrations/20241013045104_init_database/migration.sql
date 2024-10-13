@@ -2,18 +2,18 @@
 CREATE TABLE `User` (
     `id` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
-    `password` VARCHAR(191) NOT NULL,
+    `password` VARCHAR(191) NULL,
     `name` VARCHAR(191) NOT NULL,
     `image` VARCHAR(191) NULL,
-    `role` VARCHAR(191) NOT NULL DEFAULT 'USERS',
+    `role` VARCHAR(191) NOT NULL DEFAULT 'USER',
     `accountType` VARCHAR(191) NOT NULL DEFAULT 'LOCAL',
     `isActive` BOOLEAN NOT NULL DEFAULT false,
-    `codeId` VARCHAR(191) NOT NULL,
-    `codeExpired` DATETIME(3) NOT NULL,
+    `codeId` VARCHAR(191) NULL,
+    `codeExpired` DATETIME(3) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
 
-    UNIQUE INDEX `User_email_key`(`email`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -30,8 +30,12 @@ CREATE TABLE `Course` (
     `categoryId` VARCHAR(191) NOT NULL,
     `subCategoryId` VARCHAR(191) NOT NULL,
     `levelId` VARCHAR(191) NULL,
+    `statusName` VARCHAR(191) NULL,
+    `averageRating` DOUBLE NULL DEFAULT 0.0,
+    `duration` DOUBLE NULL DEFAULT 0.0,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
 
     INDEX `Course_categoryId_idx`(`categoryId`),
     INDEX `Course_subCategoryId_idx`(`subCategoryId`),
@@ -44,6 +48,9 @@ CREATE TABLE `Course` (
 CREATE TABLE `Category` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
 
     UNIQUE INDEX `Category_name_key`(`name`),
     PRIMARY KEY (`id`)
@@ -54,6 +61,9 @@ CREATE TABLE `SubCategory` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `categoryId` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
 
     INDEX `SubCategory_categoryId_idx`(`categoryId`),
     PRIMARY KEY (`id`)
@@ -63,8 +73,23 @@ CREATE TABLE `SubCategory` (
 CREATE TABLE `Level` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
 
     UNIQUE INDEX `Level_name_key`(`name`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Status` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
+
+    UNIQUE INDEX `Status_name_key`(`name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -80,19 +105,9 @@ CREATE TABLE `Section` (
     `courseId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
 
     INDEX `Section_courseId_idx`(`courseId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Video` (
-    `id` VARCHAR(191) NOT NULL,
-    `url` VARCHAR(191) NOT NULL,
-    `sectionId` VARCHAR(191) NOT NULL,
-
-    UNIQUE INDEX `Video_sectionId_key`(`sectionId`),
-    INDEX `Video_sectionId_idx`(`sectionId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -104,6 +119,7 @@ CREATE TABLE `Resource` (
     `sectionId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
 
     INDEX `Resource_sectionId_idx`(`sectionId`),
     PRIMARY KEY (`id`)
@@ -117,6 +133,7 @@ CREATE TABLE `Progress` (
     `isCompleted` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
 
     INDEX `Progress_sectionId_idx`(`sectionId`),
     UNIQUE INDEX `Progress_studentId_sectionId_key`(`studentId`, `sectionId`),
@@ -130,6 +147,7 @@ CREATE TABLE `Purchase` (
     `courseId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
 
     INDEX `Purchase_courseId_idx`(`courseId`),
     UNIQUE INDEX `Purchase_customerId_courseId_key`(`customerId`, `courseId`),
@@ -143,14 +161,45 @@ CREATE TABLE `StripeCustomer` (
     `stripeCustomerId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
 
     UNIQUE INDEX `StripeCustomer_customerId_key`(`customerId`),
     UNIQUE INDEX `StripeCustomer_stripeCustomerId_key`(`stripeCustomerId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `Comment` (
+    `id` VARCHAR(191) NOT NULL,
+    `content` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `courseId` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
+
+    INDEX `Comment_userId_courseId_idx`(`userId`, `courseId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Rating` (
+    `id` VARCHAR(191) NOT NULL,
+    `content` VARCHAR(191) NOT NULL,
+    `quality` DOUBLE NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `courseId` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NULL,
+    `deleted` BOOLEAN NOT NULL DEFAULT false,
+
+    INDEX `Rating_userId_courseId_idx`(`userId`, `courseId`),
+    UNIQUE INDEX `Rating_userId_courseId_key`(`userId`, `courseId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
-ALTER TABLE `Course` ADD CONSTRAINT `Course_instructorId_fkey` FOREIGN KEY (`instructorId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Course` ADD CONSTRAINT `Course_instructorId_fkey` FOREIGN KEY (`instructorId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Course` ADD CONSTRAINT `Course_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -162,13 +211,13 @@ ALTER TABLE `Course` ADD CONSTRAINT `Course_subCategoryId_fkey` FOREIGN KEY (`su
 ALTER TABLE `Course` ADD CONSTRAINT `Course_levelId_fkey` FOREIGN KEY (`levelId`) REFERENCES `Level`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `Course` ADD CONSTRAINT `Course_statusName_fkey` FOREIGN KEY (`statusName`) REFERENCES `Status`(`name`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `SubCategory` ADD CONSTRAINT `SubCategory_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Section` ADD CONSTRAINT `Section_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Video` ADD CONSTRAINT `Video_sectionId_fkey` FOREIGN KEY (`sectionId`) REFERENCES `Section`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Resource` ADD CONSTRAINT `Resource_sectionId_fkey` FOREIGN KEY (`sectionId`) REFERENCES `Section`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -184,3 +233,15 @@ ALTER TABLE `Purchase` ADD CONSTRAINT `Purchase_customerId_fkey` FOREIGN KEY (`c
 
 -- AddForeignKey
 ALTER TABLE `Purchase` ADD CONSTRAINT `Purchase_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Comment` ADD CONSTRAINT `Comment_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Comment` ADD CONSTRAINT `Comment_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Rating` ADD CONSTRAINT `Rating_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Rating` ADD CONSTRAINT `Rating_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
