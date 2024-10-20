@@ -5,8 +5,10 @@ import { UsersModule } from '@/modules/users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from '@/auth/passport/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from '@/auth/passport/jwt.strategy';
+import refreshTokenConfig from './config/refresh-token.config';
+import googleAuthConfig from './config/google-auth.config';
 
 @Module({
   imports: [
@@ -22,7 +24,10 @@ import { JwtStrategy } from '@/auth/passport/jwt.strategy';
       }),
       inject: [ConfigService],
     }),
+    ConfigModule.forFeature(googleAuthConfig),
+    ConfigModule.forFeature(refreshTokenConfig)
   ],
+
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],
 })
