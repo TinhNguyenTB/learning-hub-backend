@@ -7,8 +7,10 @@ import { LocalStrategy } from '@/auth/strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from '@/auth/strategies/jwt.strategy';
-import refreshTokenConfig from './config/refresh-token.config';
-import googleAuthConfig from './config/google-auth.config';
+import refreshTokenConfig from '@/auth/config/refresh-token.config';
+import googleAuthConfig from '@/auth/config/google-auth.config';
+import { RefreshStrategy } from '@/auth/strategies/refresh-token.strategy';
+import { GoogleStrategy } from '@/auth/strategies/google.strategy';
 
 @Module({
   imports: [
@@ -29,6 +31,12 @@ import googleAuthConfig from './config/google-auth.config';
   ],
 
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    RefreshStrategy,
+    GoogleStrategy,
+  ],
 })
 export class AuthModule { }

@@ -38,9 +38,6 @@ export class SocialMediaAccountDto {
     email: string;
 
     @IsNotEmpty()
-    accountType: string;
-
-    @IsNotEmpty()
     name: string;
 
     @IsOptional()

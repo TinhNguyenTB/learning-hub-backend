@@ -1,12 +1,13 @@
 import { comparePassword } from '@/helpers/utils';
 import { UsersService } from '@/modules/users/users.service';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { SocialMediaAccountDto } from './dto/auth.dto';
-import refreshTokenConfig from './config/refresh-token.config';
+import { SocialMediaAccountDto } from '@/auth/dto/auth.dto';
+import refreshTokenConfig from '@/auth/config/refresh-token.config';
 import { ConfigType } from '@nestjs/config';
-import { AuthJWTPayload } from './types/auth-jwt-payload';
+import { AuthJWTPayload } from '@/auth/types/auth-jwt-payload';
+import { CreateUserDto } from '@/modules/users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,7 @@ export class AuthService {
 
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(username);
-    if (!user || user.accountType !== "LOCAL") {
+    if (!user) {
       return null;
     }
 
@@ -43,6 +44,15 @@ export class AuthService {
     }
   }
 
+  async validateRefreshToken(userId: string, refreshToken: string) {
+    const user = await this.usersService.findByRefreshToken(userId, refreshToken);
+    if (!user) {
+      throw new UnauthorizedException("Refresh token is incorrect! Please login.");
+    }
+    return user
+  }
+
+
   async login(user: User) {
     const payload: AuthJWTPayload = {
       name: user.name,
@@ -51,6 +61,7 @@ export class AuthService {
       role: user.role
     };
     const { access_token, refresh_token } = await this.generateTokens(payload);
+    await this.usersService.updateRefreshToken(user.id, refresh_token)
     return {
       user: {
         id: user.id,
@@ -58,12 +69,42 @@ export class AuthService {
         name: user.name,
         image: user.image,
         role: user.role,
-        accountType: user.accountType,
         isActive: user.isActive
       },
       access_token,
       refresh_token
     };
+  }
+
+  async refreshToken(user: User) {
+    const payload: AuthJWTPayload = {
+      name: user.name,
+      id: user.id,
+      email: user.email,
+      role: user.role
+    };
+    const { access_token, refresh_token } = await this.generateTokens(payload);
+    await this.usersService.updateRefreshToken(user.id, refresh_token)
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.image,
+        role: user.role,
+        isActive: user.isActive
+      },
+      access_token,
+      refresh_token
+    };
+  }
+
+  async validateGoogleUser(googleUser: CreateUserDto) {
+    const user = await this.usersService.findByEmail(googleUser.email);
+    if (user) {
+      return user
+    }
+    return await this.usersService.create(googleUser)
   }
 
   async loginSocialMedia(data: SocialMediaAccountDto) {
@@ -82,10 +123,14 @@ export class AuthService {
         name: user.name,
         image: user.image,
         role: user.role,
-        accountType: user.accountType,
         isActive: user.isActive
       },
       access_token: this.jwtService.sign(payload),
     };
   }
+
+  async signOut(userId: string) {
+    return await this.usersService.updateRefreshToken(userId, null)
+  }
+
 }

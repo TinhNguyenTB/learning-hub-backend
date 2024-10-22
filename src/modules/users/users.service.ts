@@ -52,11 +52,10 @@ export class UsersService {
   }
 
   async handleLoginSocialMedia(data: SocialMediaAccountDto) {
-    const { email, name, accountType, image } = data;
+    const { email, name, image } = data;
     let user = await this.prisma.user.findFirst({
       where: {
         email,
-        accountType
       }
     })
     if (!user) {
@@ -64,7 +63,6 @@ export class UsersService {
         data: {
           name,
           email,
-          accountType,
           isActive: true,
           image: image ?? null
         }
@@ -89,16 +87,44 @@ export class UsersService {
         email: true,
         image: true,
         role: true,
-        accountType: true,
         isActive: true
       }
+    })
+  }
+
+  async findByRefreshToken(id: string, refreshToken: string) {
+    return this.prisma.user.findFirst({
+      where: {
+        id,
+        refreshToken: refreshToken,
+        deleted: false
+      },
+      select: {
+        name: true,
+        id: true,
+        email: true,
+        image: true,
+        role: true,
+        isActive: true
+      }
+    })
+  }
+
+  async updateRefreshToken(id: string, refreshToken: string | null) {
+    return await this.prisma.user.update({
+      where: {
+        id,
+        deleted: false
+      },
+      data: { refreshToken }
     })
   }
 
   async findByEmail(email: string) {
     return await this.prisma.user.findFirst({
       where: {
-        email
+        email,
+        deleted: false
       }
     })
   }

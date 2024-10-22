@@ -1,9 +1,11 @@
-import { Controller, Post, Body, UseGuards, Request, Res } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Res, Get, Req } from '@nestjs/common';
 import { AuthService } from '@/auth/auth.service';
 import { ActiveDto, ChangePasswordDto, RegisterDto, SocialMediaAccountDto } from '@/auth/dto/auth.dto';
 import { LocalAuthGuard } from '@/auth/guards/local-auth.guard';
 import { Public, ResponseMessage, User } from '@/decorator/customize';
 import { UsersService } from '@/modules/users/users.service';
+import { RefreshAuthGuard } from '@/auth/guards/refresh-auth.guard';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { Response } from 'express';
 
 @Controller('auth')
@@ -17,11 +19,16 @@ export class AuthController {
   @Public()
   @ResponseMessage("User login")
   @Post('login')
-  async login(
-    @Request() req,
-    @Res({ passthrough: true }) response: Response,
-  ) {
+  async login(@Request() req) {
     return this.authService.login(req.user);
+  }
+
+  @Public()
+  @ResponseMessage("Refresh token")
+  @UseGuards(RefreshAuthGuard)
+  @Post("refresh")
+  refreshToken(@Request() req) {
+    return this.authService.refreshToken(req.user)
   }
 
   @Post('register')
@@ -56,6 +63,27 @@ export class AuthController {
   @ResponseMessage("Change user password")
   changePassword(@Body() changePasswordDto: ChangePasswordDto, @User() user: IUser) {
     return this.userService.handleChangePassword(changePasswordDto, user);
+  }
+
+  @Public()
+  @UseGuards(GoogleAuthGuard)
+  @Get("google/login")
+  googleLogin() { }
+
+  @Public()
+  @UseGuards(GoogleAuthGuard)
+  @Get("google/callback")
+  async googleCallback(@Request() req, @Res() res: Response) {
+    // console.log("Google user:", req.user)
+    const response = await this.authService.login(req.user)
+    const { id, name } = response.user;
+    const { access_token, refresh_token } = response
+    res.redirect(`http://localhost:3000/api/auth/google/callback?userId=${id}&name=${name}&accessToken=${access_token}&refreshToken=${refresh_token}`)
+  }
+
+  @Post("signout")
+  signOut(@Req() req) {
+    return this.authService.signOut(req.user.id)
   }
 
   @Post('social-media')
