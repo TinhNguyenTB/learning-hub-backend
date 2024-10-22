@@ -3,10 +3,10 @@ import { AuthService } from '@/auth/auth.service';
 import { AuthController } from '@/auth/auth.controller';
 import { UsersModule } from '@/modules/users/users.module';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from '@/auth/passport/local.strategy';
+import { LocalStrategy } from '@/auth/strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtStrategy } from '@/auth/passport/jwt.strategy';
+import { JwtStrategy } from '@/auth/strategies/jwt.strategy';
 import refreshTokenConfig from './config/refresh-token.config';
 import googleAuthConfig from './config/google-auth.config';
 
