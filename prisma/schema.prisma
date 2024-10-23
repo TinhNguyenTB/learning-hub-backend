@@ -14,7 +14,6 @@ model User {
   name         String
   image        String?
   role         String    @default("USER")
-  accountType  String    @default("LOCAL")
   isActive     Boolean   @default(false)
   codeId       String?
   codeExpired  DateTime?

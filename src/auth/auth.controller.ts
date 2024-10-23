@@ -67,6 +67,7 @@ export class AuthController {
 
   @Public()
   @UseGuards(GoogleAuthGuard)
+  @ResponseMessage("Login with google")
   @Get("google/login")
   googleLogin() { }
 
@@ -76,20 +77,15 @@ export class AuthController {
   async googleCallback(@Request() req, @Res() res: Response) {
     // console.log("Google user:", req.user)
     const response = await this.authService.login(req.user)
-    const { id, name } = response.user;
+    const { id, name, email, image, isActive, role } = response.user;
     const { access_token, refresh_token } = response
-    res.redirect(`http://localhost:3000/api/auth/google/callback?userId=${id}&name=${name}&accessToken=${access_token}&refreshToken=${refresh_token}`)
+    res.redirect(`http://localhost:3000/api/auth/google/callback?userId=${id}&name=${name}&email=${email}&image=${image}&isActive=${isActive}&role=${role}&accessToken=${access_token}&refreshToken=${refresh_token}`)
   }
 
   @Post("signout")
+  @ResponseMessage("User sign out")
   signOut(@Req() req) {
     return this.authService.signOut(req.user.id)
   }
 
-  @Post('social-media')
-  @Public()
-  @ResponseMessage("Login with social media")
-  loginSocialMedia(@Body() data: SocialMediaAccountDto) {
-    return this.authService.loginSocialMedia(data);
-  }
 }

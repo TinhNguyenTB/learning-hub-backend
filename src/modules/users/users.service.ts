@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '@/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/users/dto/update-user.dto';
 import { PrismaService } from '@/prisma.service';
 import { comparePassword, generateHashPassword, generateOTP } from '@/helpers/utils';
-import { ActiveDto, ChangePasswordDto, RegisterDto, SocialMediaAccountDto } from '@/auth/dto/auth.dto';
+import { ActiveDto, ChangePasswordDto, RegisterDto } from '@/auth/dto/auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -51,18 +51,21 @@ export class UsersService {
     };
   }
 
-  async handleLoginSocialMedia(data: SocialMediaAccountDto) {
-    const { email, name, image } = data;
+  async handleLoginGoogle(data: CreateUserDto) {
+    const { email, name, password, image } = data;
     let user = await this.prisma.user.findFirst({
       where: {
         email,
       }
     })
+    // hash password
+    const hashPassword = await generateHashPassword(password)
     if (!user) {
       user = await this.prisma.user.create({
         data: {
           name,
           email,
+          password: hashPassword,
           isActive: true,
           image: image ?? null
         }

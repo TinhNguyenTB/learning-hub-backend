@@ -104,29 +104,7 @@ export class AuthService {
     if (user) {
       return user
     }
-    return await this.usersService.create(googleUser)
-  }
-
-  async loginSocialMedia(data: SocialMediaAccountDto) {
-    const user = await this.usersService.handleLoginSocialMedia(data);
-
-    const payload = {
-      name: user.name,
-      id: user.id,
-      email: user.email,
-      role: user.role
-    };
-    return {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        image: user.image,
-        role: user.role,
-        isActive: user.isActive
-      },
-      access_token: this.jwtService.sign(payload),
-    };
+    return await this.usersService.handleLoginGoogle(googleUser)
   }
 
   async signOut(userId: string) {
