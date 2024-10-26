@@ -8,16 +8,15 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  email        String
-  password     String?
-  name         String
-  image        String?
-  role         String    @default("USER")
-  isActive     Boolean   @default(false)
-  codeId       String?
-  codeExpired  DateTime?
-  refreshToken String?   @db.Text
+  id          String    @id @default(uuid())
+  email       String
+  password    String?
+  name        String
+  image       String?
+  role        String    @default("USER")
+  isActive    Boolean   @default(false)
+  codeId      String?
+  codeExpired DateTime?
 
   courses   Course[]
   progress  Progress[]

@@ -15,6 +15,7 @@ import { AuthModule } from '@/auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { StatusModule } from '@/modules/status/status.module';
+import { WebhookModule } from '@/webhook/webhook.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { StatusModule } from '@/modules/status/status.module';
     SectionsModule,
     SubcategoriesModule,
     StatusModule,
+    WebhookModule,
 
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -59,7 +61,6 @@ import { StatusModule } from '@/modules/status/status.module';
       }),
       inject: [ConfigService],
     }),
-
   ],
   controllers: [AppController],
   providers: [AppService],

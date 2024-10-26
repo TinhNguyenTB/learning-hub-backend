@@ -3,26 +3,60 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { ChangeStatusCourseDto, PublishCourseDto, UpdateCourseDto } from './dto/update-course.dto';
 import { PrismaService } from '@/prisma.service';
 import { validateFields } from '@/helpers/utils';
+import Stripe from 'stripe';
+import { stripe } from '@/lib/stripe';
+import { ConfigService } from '@nestjs/config';
+import { courseStatus } from '@/lib/constants';
 
 @Injectable()
 export class CoursesService {
   constructor(
     private prisma: PrismaService,
+    private configService: ConfigService
   ) { }
+
+  async checkCourseExistsByTitle(title: string) {
+    const course = await this.prisma.course.findFirst({
+      where: {
+        title,
+        deleted: false
+      }
+    })
+    if (course) {
+      throw new BadRequestException(`Course ${title} already exists`)
+    }
+    return false
+  }
+
+  async checkCourseExistsById(id: string) {
+    const course = await this.prisma.course.findUnique({
+      where: {
+        id,
+        deleted: false
+      }
+    })
+    if (!course) {
+      throw new BadRequestException("Course not found")
+    }
+    return true
+  }
 
   async create(createCourseDto: CreateCourseDto, user: IUser) {
     const { title, categoryId, subCategoryId } = createCourseDto;
-    const newCourse = await this.prisma.course.create({
-      data: {
-        title,
-        categoryId,
-        subCategoryId,
-        instructorId: user.id,
-        statusName: "PENDING"
+    const isExist = await this.checkCourseExistsByTitle(title);
+    if (isExist === false) {
+      const newCourse = await this.prisma.course.create({
+        data: {
+          title,
+          categoryId,
+          subCategoryId,
+          instructorId: user.id,
+          statusName: courseStatus.PENDING
+        }
+      })
+      return {
+        id: newCourse.id
       }
-    })
-    return {
-      id: newCourse.id
     }
   }
 
@@ -43,8 +77,8 @@ export class CoursesService {
         AND: [
           // { statusName: "APPROVED" },
           ...(categoryId ? [{ categoryId }] : []),
-          { deleted: false }
-          // { isPublished: true }
+          { deleted: false },
+          { isPublished: true }
         ]
       },
     });
@@ -61,8 +95,8 @@ export class CoursesService {
         AND: [
           // { statusName: "APPROVED" },
           ...(categoryId ? [{ categoryId }] : []),
-          { deleted: false }
-          // { isPublished: true }
+          { deleted: false },
+          { isPublished: true }
         ]
       },
       include: {
@@ -144,7 +178,8 @@ export class CoursesService {
     return await this.prisma.course.findUnique({
       where: {
         id,
-        deleted: false
+        deleted: false,
+        isPublished: true
       },
       include: {
         sections: {
@@ -160,35 +195,33 @@ export class CoursesService {
   }
 
   async update(id: string, updateCourseDto: UpdateCourseDto, user: IUser) {
-    return await this.prisma.course.update({
-      where: {
-        id,
-        instructorId: user.id
-      },
-      data: {
-        ...updateCourseDto
-      }
-    })
+    const isExist = await this.checkCourseExistsById(id);
+    if (isExist) {
+      return await this.prisma.course.update({
+        where: {
+          id,
+          instructorId: user.id
+        },
+        data: {
+          ...updateCourseDto
+        }
+      })
+    }
   }
 
   async remove(courseId: string) {
     // check course exist
-    let course = await this.prisma.course.findUnique({
-      where: {
-        id: courseId
-      },
-    })
-    if (!course) {
-      throw new NotFoundException("Course not found")
-    }
-    course = await this.prisma.course.update({
-      where: {
-        id: courseId
-      },
-      data: { deleted: true }
-    })
-    return {
-      deleted: course.deleted
+    const isExist = await this.checkCourseExistsById(courseId);
+    if (isExist) {
+      const course = await this.prisma.course.update({
+        where: {
+          id: courseId
+        },
+        data: { deleted: true }
+      })
+      return {
+        deleted: course.deleted
+      }
     }
   }
 
@@ -230,23 +263,89 @@ export class CoursesService {
 
   async changeStatus(data: ChangeStatusCourseDto) {
     // check course exist
+    const isExist = await this.checkCourseExistsById(data.id);
+    if (isExist) {
+      return await this.prisma.course.update({
+        where: {
+          id: data.id
+        },
+        data: {
+          statusName: data.statusName
+        }
+      })
+    }
+  }
+
+  async checkout(id: string, user: IUser) {
+    // check course exist
     const course = await this.prisma.course.findUnique({
       where: {
-        id: data.id,
-        deleted: false
+        id,
+        deleted: false,
+        isPublished: true
       }
     })
     if (!course) {
       throw new NotFoundException("Course not found")
     }
-    return await this.prisma.course.update({
+    // check purchase exist
+    const purchase = await this.prisma.purchase.findUnique({
       where: {
-        id: data.id
-      },
-      data: {
-        statusName: data.statusName
+        customerId_courseId: { courseId: course.id, customerId: user.id }
       }
     })
+    if (purchase) {
+      throw new BadRequestException("Course already purchase")
+    }
+    // create line_items
+    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+      {
+        quantity: 1,
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: course.title
+          },
+          unit_amount: Math.round(course.price * 100)
+        }
+      }
+    ]
+    // create stripe_customer
+    let stripe_customer = await this.prisma.stripeCustomer.findUnique({
+      where: {
+        customerId: user.id
+      },
+      select: {
+        stripeCustomerId: true
+      }
+    })
+    if (!stripe_customer) {
+      const customer = await stripe.customers.create({
+        email: user.email
+      });
+      stripe_customer = await this.prisma.stripeCustomer.create({
+        data: {
+          customerId: user.id,
+          stripeCustomerId: customer.id
+        }
+      })
+    }
+    // create payment session
+    const frontendUrl = this.configService.get<string>("FRONTEND_URL")
+    const session = await stripe.checkout.sessions.create({
+      customer: stripe_customer.stripeCustomerId,
+      payment_method_types: ['card'],
+      line_items: line_items,
+      mode: 'payment',
+      success_url: `${frontendUrl}/courses/${course.id}/overview?success=true`,
+      cancel_url: `${frontendUrl}/courses/${course.id}/overview?canceled=true`,
+      metadata: {
+        courseId: course.id,
+        customerId: user.id
+      }
+    })
+    return {
+      url: session.url
+    }
   }
-
 }

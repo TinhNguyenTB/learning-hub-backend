@@ -4,9 +4,13 @@ import { ConfigService } from '@nestjs/config';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { TransformInterceptor } from '@/core/transform.interceptor';
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  });
+
   const configService = app.get(ConfigService);
 
   const port = configService.get('PORT');

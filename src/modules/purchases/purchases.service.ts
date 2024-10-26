@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
 import { UpdatePurchaseDto } from './dto/update-purchase.dto';
+import { PrismaService } from '@/prisma.service';
 
 @Injectable()
 export class PurchasesService {
+  constructor(private prisma: PrismaService) { }
+
   create(createPurchaseDto: CreatePurchaseDto) {
     return 'This action adds a new purchase';
   }
@@ -12,8 +15,15 @@ export class PurchasesService {
     return `This action returns all purchases`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} purchase`;
+  async findOne(courseId: string, user: IUser) {
+    return await this.prisma.purchase.findUnique({
+      where: {
+        customerId_courseId: {
+          customerId: user.id,
+          courseId
+        }
+      }
+    })
   }
 
   update(id: number, updatePurchaseDto: UpdatePurchaseDto) {

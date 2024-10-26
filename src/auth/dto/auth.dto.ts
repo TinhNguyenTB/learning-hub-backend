@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional } from "class-validator";
+import { IsEmail, IsNotEmpty } from "class-validator";
 
 export class RegisterDto {
     @IsEmail()
@@ -31,15 +31,4 @@ export class ChangePasswordDto {
 
     @IsNotEmpty()
     confirmPassword: string;
-}
-
-export class SocialMediaAccountDto {
-    @IsEmail()
-    email: string;
-
-    @IsNotEmpty()
-    name: string;
-
-    @IsOptional()
-    image: string
 }

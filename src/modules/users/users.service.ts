@@ -53,24 +53,18 @@ export class UsersService {
 
   async handleLoginGoogle(data: CreateUserDto) {
     const { email, name, password, image } = data;
-    let user = await this.prisma.user.findFirst({
-      where: {
-        email,
-      }
-    })
     // hash password
     const hashPassword = await generateHashPassword(password)
-    if (!user) {
-      user = await this.prisma.user.create({
-        data: {
-          name,
-          email,
-          password: hashPassword,
-          isActive: true,
-          image: image ?? null
-        }
-      })
-    }
+    const user = await this.prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashPassword,
+        isActive: true,
+        image: image ?? null
+      }
+    })
+
     return user;
   }
 
@@ -92,34 +86,6 @@ export class UsersService {
         role: true,
         isActive: true
       }
-    })
-  }
-
-  async findByRefreshToken(id: string, refreshToken: string) {
-    return this.prisma.user.findFirst({
-      where: {
-        id,
-        refreshToken: refreshToken,
-        deleted: false
-      },
-      select: {
-        name: true,
-        id: true,
-        email: true,
-        image: true,
-        role: true,
-        isActive: true
-      }
-    })
-  }
-
-  async updateRefreshToken(id: string, refreshToken: string | null) {
-    return await this.prisma.user.update({
-      where: {
-        id,
-        deleted: false
-      },
-      data: { refreshToken }
     })
   }
 

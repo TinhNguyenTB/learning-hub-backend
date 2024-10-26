@@ -70,4 +70,10 @@ export class CoursesController {
   changeStatus(@Body() data: ChangeStatusCourseDto) {
     return this.coursesService.changeStatus(data);
   }
+
+  @Post(":id/checkout")
+  @ResponseMessage("Checkout course")
+  checkout(@Param('id') id: string, @User() user: IUser) {
+    return this.coursesService.checkout(id, user);
+  }
 }
