@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmation</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background-color: #f8f8f8; color: #333; margin: 0; padding: 20px;">
+    <div
+        style="max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <div
+            style="background-color: #007bff; color: white; padding: 10px; text-align: center; border-radius: 5px 5px 0 0;">
+            <h1 style="margin: 0; font-size: 24px;">Payment Confirmation</h1>
+        </div>
+        <p style="font-size: 20px;">Hello {{customerName}},</p>
+        <p style="font-size: 20px;">Thank you for purchasing the course! Below are your payment details:</p>
+        <ul style="font-size: 20px;">
+            <li>Amount: {{amount}} {{currency}}</li>
+            <li>Transaction ID: {{transactionId}}</li>
+            <li>Course: {{courseName}}</li>
+        </ul>
+        <p style="font-size:20px;">Thank you for your support!</p>
+        <div style="margin-top: 20px; font-size: 18px; text-align: center; color: #777;">
+            <p>Best regards,</p>
+            <p>Support Team Learning Hub</p>
+        </div>
+    </div>
+</body>
+
+</html>
