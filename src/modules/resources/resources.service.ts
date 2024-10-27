@@ -45,8 +45,13 @@ export class ResourcesService {
     return resource;
   }
 
-  findAll() {
-    return `This action returns all resources`;
+  async findAll(sectionId: string) {
+    if (!sectionId) {
+      throw new BadRequestException("sectionId is required")
+    }
+    return await this.prisma.resource.findMany({
+      where: { sectionId }
+    })
   }
 
   findOne(id: number) {

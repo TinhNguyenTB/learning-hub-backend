@@ -57,11 +57,23 @@ export class SectionsService {
     })
   }
 
-  async findOne(id: string, courseId: string) {
+  async findOne(id: string) {
     return await this.prisma.section.findUnique({
       where: {
         id,
-        courseId,
+        deleted: false
+      },
+      include: {
+        resources: true,
+      }
+    })
+  }
+
+  async findOnePublished(id: string) {
+    return await this.prisma.section.findUnique({
+      where: {
+        id,
+        isPublished: true,
         deleted: false
       },
       include: {

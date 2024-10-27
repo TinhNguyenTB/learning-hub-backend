@@ -189,7 +189,8 @@ export class CoursesService {
           orderBy: {
             position: 'asc'
           }
-        }
+        },
+        instructor: true
       }
     })
   }

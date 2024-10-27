@@ -62,7 +62,6 @@ export class WebhookService {
                     customerName: session.customer_details.name,
                     amount: (session.amount_total / 100).toFixed(2),
                     currency: session.currency.toUpperCase(),
-                    transactionId: session.id,
                     courseName: courseName,
                 }
             });
