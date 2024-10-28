@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProgressDto } from './dto/create-progress.dto';
 import { UpdateProgressDto } from './dto/update-progress.dto';
+import { PrismaService } from '@/prisma.service';
 
 @Injectable()
 export class ProgressService {
+  constructor(private prisma: PrismaService) { }
+
   create(createProgressDto: CreateProgressDto) {
     return 'This action adds a new progress';
   }
@@ -12,8 +15,15 @@ export class ProgressService {
     return `This action returns all progress`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} progress`;
+  async findOne(studentId: string, sectionId: string) {
+    return await this.prisma.progress.findUnique({
+      where: {
+        studentId_sectionId: {
+          studentId,
+          sectionId
+        }
+      }
+    })
   }
 
   update(id: number, updateProgressDto: UpdateProgressDto) {

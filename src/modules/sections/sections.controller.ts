@@ -21,14 +21,8 @@ export class SectionsController {
     return this.sectionsService.findAll(courseId);
   }
 
-  @ResponseMessage("Get section by id")
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.sectionsService.findOne(id);
-  }
-
   @ResponseMessage("Get published section by id")
-  @Get(':id/published')
+  @Get(':id')
   findOnePublished(@Param('id') id: string) {
     return this.sectionsService.findOnePublished(id);
   }
