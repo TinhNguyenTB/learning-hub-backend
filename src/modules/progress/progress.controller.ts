@@ -1,21 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { ProgressService } from './progress.service';
-import { CreateProgressDto } from './dto/create-progress.dto';
-import { UpdateProgressDto } from './dto/update-progress.dto';
+import { CompletedProgressDto, UpSertProgressDto } from './dto/progress.dto';
 import { ResponseMessage } from '@/decorator/customize';
 
 @Controller('progress')
 export class ProgressController {
   constructor(private readonly progressService: ProgressService) { }
 
-  @Post()
-  create(@Body() createProgressDto: CreateProgressDto) {
-    return this.progressService.create(createProgressDto);
+  @ResponseMessage("UpSert progress by studentId and sectionId")
+  @Post('upsert')
+  upSert(@Body() upSertProgressDto: UpSertProgressDto) {
+    return this.progressService.upSert(upSertProgressDto);
   }
 
-  @Get()
-  findAll() {
-    return this.progressService.findAll();
+  @ResponseMessage("Count completed progress by sectionId")
+  @Post('count-completed')
+  findAll(@Body() completedProgressDto: CompletedProgressDto) {
+    return this.progressService.findAll(completedProgressDto);
   }
 
   @ResponseMessage("Get progress by studentId and sectionId")
@@ -27,13 +28,4 @@ export class ProgressController {
     return this.progressService.findOne(studentId, sectionId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProgressDto: UpdateProgressDto) {
-    return this.progressService.update(+id, updateProgressDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.progressService.remove(+id);
-  }
 }
