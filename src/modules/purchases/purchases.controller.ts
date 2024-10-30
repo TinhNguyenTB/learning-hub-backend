@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { PurchasesService } from './purchases.service';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
 import { UpdatePurchaseDto } from './dto/update-purchase.dto';
@@ -13,9 +13,10 @@ export class PurchasesController {
     return this.purchasesService.create(createPurchaseDto);
   }
 
+  @ResponseMessage("Get all purchases for instructor")
   @Get()
-  findAll() {
-    return this.purchasesService.findAll();
+  findAll(@Query("instructorId") instructorId: string) {
+    return this.purchasesService.findAll(instructorId);
   }
 
   @ResponseMessage("Get purchase by courseId")
