@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePurchaseDto } from './dto/create-purchase.dto';
 import { UpdatePurchaseDto } from './dto/update-purchase.dto';
 import { PrismaService } from '@/prisma.service';
@@ -12,6 +12,9 @@ export class PurchasesService {
   }
 
   async findAll(instructorId: string) {
+    if (!instructorId) {
+      throw new BadRequestException("Missing query param")
+    }
     const purchases = await this.prisma.purchase.findMany({
       where: {
         course: { instructorId: instructorId },
