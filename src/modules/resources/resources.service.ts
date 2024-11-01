@@ -50,7 +50,7 @@ export class ResourcesService {
       throw new BadRequestException("sectionId is required")
     }
     return await this.prisma.resource.findMany({
-      where: { sectionId }
+      where: { sectionId, deleted: false }
     })
   }
 

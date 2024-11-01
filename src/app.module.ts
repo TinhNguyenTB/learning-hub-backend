@@ -16,6 +16,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { StatusModule } from '@/modules/status/status.module';
 import { WebhookModule } from '@/webhook/webhook.module';
+import { RatingsModule } from '@/modules/ratings/ratings.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { WebhookModule } from '@/webhook/webhook.module';
     SubcategoriesModule,
     StatusModule,
     WebhookModule,
+    RatingsModule,
 
     MailerModule.forRootAsync({
       imports: [ConfigModule],
