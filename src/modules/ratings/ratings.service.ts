@@ -50,7 +50,7 @@ export class RatingsService {
     const result = await this.prisma.rating.findMany({
       take: pageSize,
       skip: skip,
-      where: { courseId, deleted: false },
+      where: { courseId },
       include: {
         user: {
           select: {
@@ -84,11 +84,57 @@ export class RatingsService {
     return `This action returns a #${id} rating`;
   }
 
-  update(id: number, updateRatingDto: UpdateRatingDto) {
-    return `This action updates a #${id} rating`;
+  async update(id: string, updateRatingDto: UpdateRatingDto) {
+    const rate = await this.prisma.rating.findUnique({
+      where: { id }
+    })
+    if (!rate) {
+      throw new BadRequestException("Rate not found")
+    }
+
+    const { content, quality, courseId } = updateRatingDto
+    const result = await this.prisma.rating.update({
+      where: { id },
+      data: {
+        content,
+        quality
+      }
+    })
+    const ratings = await this.prisma.rating.findMany({
+      where: { courseId },
+    });
+    const averageRating = ratings.reduce((acc, curr) => acc + curr.quality, 0) / ratings.length;
+    // Update the course with the new average rating
+    await this.prisma.course.update({
+      where: { id: courseId },
+      data: { averageRating },
+    });
+    return result;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} rating`;
+  async remove(id: string, courseId: string) {
+    const rate = await this.prisma.rating.findUnique({
+      where: { id }
+    })
+    if (!rate) {
+      throw new BadRequestException("Rate not found")
+    }
+    const result = await this.prisma.rating.delete({
+      where: { id },
+    })
+
+    const ratings = await this.prisma.rating.findMany({
+      where: { courseId },
+    });
+    let averageRating = 0;
+    if (ratings.length > 0) {
+      averageRating = ratings.reduce((acc, curr) => acc + curr.quality, 0) / ratings.length;
+    }
+    // Update the course with the new average rating
+    await this.prisma.course.update({
+      where: { id: courseId },
+      data: { averageRating },
+    });
+    return result;
   }
 }

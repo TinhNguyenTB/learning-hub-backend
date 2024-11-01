@@ -30,13 +30,15 @@ export class RatingsController {
     return this.ratingsService.findOne(+id);
   }
 
+  @ResponseMessage("Update a rate")
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRatingDto: UpdateRatingDto) {
-    return this.ratingsService.update(+id, updateRatingDto);
+    return this.ratingsService.update(id, updateRatingDto);
   }
 
+  @ResponseMessage("Delete a rate")
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ratingsService.remove(+id);
+  remove(@Param('id') id: string, @Body("courseId") courseId: string) {
+    return this.ratingsService.remove(id, courseId);
   }
 }
