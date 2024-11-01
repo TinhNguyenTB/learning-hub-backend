@@ -15,7 +15,8 @@ export class RatingsService {
     if (rate) {
       throw new BadRequestException("Rate already exist")
     }
-    return await this.prisma.rating.create({
+
+    const result = await this.prisma.rating.create({
       data: {
         content,
         courseId,
@@ -23,10 +24,60 @@ export class RatingsService {
         userId
       }
     })
+    const ratings = await this.prisma.rating.findMany({
+      where: { courseId },
+    });
+    const averageRating = ratings.reduce((acc, curr) => acc + curr.quality, 0) / ratings.length;
+    // Update the course with the new average rating
+    await this.prisma.course.update({
+      where: { id: courseId },
+      data: { averageRating },
+    });
+
+    return result
   }
 
-  async findAll(current: string, pageSize: string, user: IUser) {
-    return `This action returns all ratings`;
+  async findAll(current: number, pageSize: number, courseId: string, user: IUser) {
+    if (!current || current < 1) current = 1;
+    if (!pageSize || pageSize < 1) pageSize = 10;
+
+    const skip = current > 1 ? (current - 1) * pageSize : 0;
+
+    const total = await this.prisma.rating.count({
+      where: { courseId, deleted: false }
+    });
+
+    const result = await this.prisma.rating.findMany({
+      take: pageSize,
+      skip: skip,
+      where: { courseId, deleted: false },
+      include: {
+        user: {
+          select: {
+            name: true,
+            image: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+    const hasRated = await this.prisma.rating.findFirst({
+      where: { userId: user.id }
+    })
+    const totalPages = Math.ceil(total / pageSize);
+
+    return {
+      meta: {
+        current: current,
+        pageSize: pageSize,
+        pages: totalPages,
+        total: total
+      },
+      result,
+      hasRated: hasRated ? true : false
+    }
   }
 
   findOne(id: number) {

@@ -19,9 +19,10 @@ export class RatingsController {
   findAll(
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
+    @Query('courseId') courseId: string,
     @User() user: IUser
   ) {
-    return this.ratingsService.findAll(current, pageSize, user);
+    return this.ratingsService.findAll(+current, +pageSize, courseId, user);
   }
 
   @Get(':id')
