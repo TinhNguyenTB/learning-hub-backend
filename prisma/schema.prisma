@@ -207,7 +207,7 @@ model Comment {
   courseId String
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  parentId String?   @default(uuid())
+  parentId String?
   parent   Comment?  @relation("ParentChild", fields: [parentId], references: [id])
   children Comment[] @relation("ParentChild")
 
