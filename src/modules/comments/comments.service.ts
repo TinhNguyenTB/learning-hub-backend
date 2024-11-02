@@ -8,10 +8,10 @@ export class CommentsService {
   constructor(private prisma: PrismaService) { }
 
   async create(createCommentDto: CreateCommentDto) {
-    const { content, courseId, userId, parentId } = createCommentDto;
+    const { content, courseId, userId } = createCommentDto;
 
     return await this.prisma.comment.create({
-      data: { content, courseId, userId, parentId }
+      data: { content, courseId, userId }
     })
   }
 
@@ -35,7 +35,7 @@ export class CommentsService {
             name: true,
             image: true
           }
-        }
+        },
       },
       orderBy: {
         createdAt: 'desc'
@@ -51,10 +51,6 @@ export class CommentsService {
       },
       result
     }
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} comment`;
   }
 
   async update(id: string, updateCommentDto: UpdateCommentDto) {
@@ -79,14 +75,9 @@ export class CommentsService {
       throw new BadGatewayException("Comment not found")
     }
 
-    const result = await this.prisma.comment.update({
+    return await this.prisma.comment.update({
       where: { id },
       data: { deleted: true }
     })
-    await this.prisma.comment.updateMany({
-      where: { parentId: id },
-      data: { deleted: true }
-    })
-    return result;
   }
 }

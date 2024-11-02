@@ -24,11 +24,6 @@ export class CommentsController {
     return this.commentsService.findAll(+current, +pageSize, courseId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commentsService.findOne(+id);
-  }
-
   @ResponseMessage("Update a comment")
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {

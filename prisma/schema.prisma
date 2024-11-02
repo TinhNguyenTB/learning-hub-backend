@@ -207,10 +207,6 @@ model Comment {
   courseId String
   course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
-  parentId String?
-  parent   Comment?  @relation("ParentChild", fields: [parentId], references: [id])
-  children Comment[] @relation("ParentChild")
-
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
   deleted   Boolean   @default(false)
