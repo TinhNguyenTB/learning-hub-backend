@@ -57,8 +57,18 @@ export class CommentsService {
     return `This action returns a #${id} comment`;
   }
 
-  update(id: number, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
+  async update(id: string, updateCommentDto: UpdateCommentDto) {
+    const comment = await this.prisma.comment.findUnique({
+      where: { id, deleted: false }
+    })
+    if (!comment) {
+      throw new BadGatewayException("Comment not found")
+    }
+
+    return await this.prisma.comment.update({
+      where: { id },
+      data: { content: updateCommentDto.content }
+    })
   }
 
   async remove(id: string) {

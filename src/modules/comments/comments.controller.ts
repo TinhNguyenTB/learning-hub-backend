@@ -29,11 +29,13 @@ export class CommentsController {
     return this.commentsService.findOne(+id);
   }
 
+  @ResponseMessage("Update a comment")
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentsService.update(+id, updateCommentDto);
+    return this.commentsService.update(id, updateCommentDto);
   }
 
+  @ResponseMessage("Delete a comment")
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.commentsService.remove(id);
