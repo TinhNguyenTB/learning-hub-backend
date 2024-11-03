@@ -3,12 +3,14 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Public, ResponseMessage } from '@/decorator/customize';
+import { Roles } from '@/decorator/roles.decorator';
+import { Role } from '@/enums/role.enum';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  @Public()
+  @Roles(Role.Admin)
   @ResponseMessage("Create a new user")
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -20,9 +22,9 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Roles(Role.Admin)
   @ResponseMessage("Get user by id")
   @Get(':id')
-  @Public()
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
