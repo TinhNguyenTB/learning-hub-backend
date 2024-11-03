@@ -19,6 +19,12 @@ export class PurchasesController {
     return this.purchasesService.findAll(instructorId);
   }
 
+  @ResponseMessage("Get all purchases for student")
+  @Get('student')
+  findAllForStudent(@User() user: IUser) {
+    return this.purchasesService.findAllForStudent(user);
+  }
+
   @ResponseMessage("Get purchase by courseId")
   @Get(':courseId')
   findOne(@Param('courseId') courseId: string, @User() user: IUser) {

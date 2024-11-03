@@ -22,9 +22,15 @@ export class SectionsController {
   }
 
   @ResponseMessage("Get published section by id")
-  @Get(':id')
+  @Get(':id/published')
   findOnePublished(@Param('id') id: string) {
     return this.sectionsService.findOnePublished(id);
+  }
+
+  @ResponseMessage("Get section by id")
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.sectionsService.findOne(id);
   }
 
   @ResponseMessage("Update section")

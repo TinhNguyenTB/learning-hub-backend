@@ -26,6 +26,27 @@ export class PurchasesService {
     return purchases
   }
 
+  async findAllForStudent(user: IUser) {
+    return await this.prisma.purchase.findMany({
+      where: {
+        customerId: user.id,
+      },
+      select: {
+        course: {
+          include: {
+            category: true,
+            subCategory: true,
+            sections: {
+              where: {
+                isPublished: true
+              }
+            }
+          }
+        }
+      }
+    })
+  }
+
   async findOne(courseId: string, user: IUser) {
     return await this.prisma.purchase.findUnique({
       where: {

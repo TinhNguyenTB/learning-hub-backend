@@ -70,6 +70,18 @@ export class SectionsService {
     })
   }
 
+  async findOne(id: string) {
+    return await this.prisma.section.findUnique({
+      where: {
+        id,
+        deleted: false
+      },
+      include: {
+        resources: true,
+      }
+    })
+  }
+
   async update(id: string, updateSectionDto: UpdateSectionDto, user: IUser) {
     // check course exist
     const course = await this.prisma.course.findUnique({
