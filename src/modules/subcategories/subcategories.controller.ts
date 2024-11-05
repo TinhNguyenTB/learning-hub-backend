@@ -3,11 +3,15 @@ import { SubcategoriesService } from './subcategories.service';
 import { CreateSubcategoryDto } from './dto/create-subcategory.dto';
 import { UpdateSubcategoryDto } from './dto/update-subcategory.dto';
 import { Public, ResponseMessage } from '@/decorator/customize';
+import { Roles } from '@/decorator/roles.decorator';
+import { Role } from '@/enums/role.enum';
 
 @Controller('subcategories')
 export class SubcategoriesController {
   constructor(private readonly subcategoriesService: SubcategoriesService) { }
 
+  @Roles(Role.Admin)
+  @ResponseMessage("Create a new subcategory")
   @Post()
   create(@Body() createSubcategoryDto: CreateSubcategoryDto) {
     return this.subcategoriesService.create(createSubcategoryDto);
@@ -29,9 +33,11 @@ export class SubcategoriesController {
     return this.subcategoriesService.findOne(+id);
   }
 
+  @Roles(Role.Admin)
+  @ResponseMessage("Create a new subcategory")
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSubcategoryDto: UpdateSubcategoryDto) {
-    return this.subcategoriesService.update(+id, updateSubcategoryDto);
+    return this.subcategoriesService.update(id, updateSubcategoryDto);
   }
 
   @Public()

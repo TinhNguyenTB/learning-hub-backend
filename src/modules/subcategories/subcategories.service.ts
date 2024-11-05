@@ -7,8 +7,17 @@ import { PrismaService } from '@/prisma.service';
 export class SubcategoriesService {
   constructor(private prisma: PrismaService) { }
 
-  create(createSubcategoryDto: CreateSubcategoryDto) {
-    return 'This action adds a new subcategory';
+  async create(createSubcategoryDto: CreateSubcategoryDto) {
+    const { categoryId, name } = createSubcategoryDto;
+    const subcategory = await this.prisma.subCategory.findFirst({
+      where: { name }
+    })
+    if (subcategory) {
+      throw new BadRequestException(`Subcategory ${name} already exists`)
+    }
+    return await this.prisma.subCategory.create({
+      data: { name, categoryId }
+    })
   }
 
   async findAll(current: number, pageSize: number, search: string) {
@@ -67,7 +76,7 @@ export class SubcategoriesService {
     return `This action returns a #${id} subcategory`;
   }
 
-  update(id: number, updateSubcategoryDto: UpdateSubcategoryDto) {
+  async update(id: string, updateSubcategoryDto: UpdateSubcategoryDto) {
     return `This action updates a #${id} subcategory`;
   }
 
