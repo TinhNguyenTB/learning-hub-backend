@@ -157,6 +157,34 @@ export class CoursesService {
     })
   }
 
+  async findFeatured() {
+    return await this.prisma.course.findMany({
+      take: 4,
+      where: {
+        deleted: false,
+        isPublished: true
+      },
+      include: {
+        level: {
+          select: {
+            name: true,
+            id: true
+          }
+        },
+        instructor: {
+          select: {
+            name: true,
+            id: true,
+            image: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+  }
+
   async findOne(id: string, user: IUser) {
     return await this.prisma.course.findUnique({
       where: {

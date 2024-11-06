@@ -10,7 +10,7 @@ export class RatingsService {
   async create(createRatingDto: CreateRatingDto) {
     const { content, courseId, quality, userId } = createRatingDto;
     const rate = await this.prisma.rating.findFirst({
-      where: { userId }
+      where: { courseId, userId }
     })
     if (rate) {
       throw new BadRequestException("Rate already exist")
@@ -64,7 +64,7 @@ export class RatingsService {
       }
     })
     const hasRated = await this.prisma.rating.findFirst({
-      where: { userId: user.id }
+      where: { courseId: courseId, userId: user.id }
     })
     const totalPages = Math.ceil(total / pageSize);
 

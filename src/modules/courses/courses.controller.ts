@@ -45,6 +45,13 @@ export class CoursesController {
     return this.coursesService.findOneForStudent(id);
   }
 
+  @Public()
+  @ResponseMessage("Get featured courses")
+  @Post('featured')
+  findFeatured() {
+    return this.coursesService.findFeatured();
+  }
+
   @ResponseMessage("Update course")
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto, @User() user: IUser) {

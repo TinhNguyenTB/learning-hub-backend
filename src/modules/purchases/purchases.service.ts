@@ -40,6 +40,17 @@ export class PurchasesService {
               where: {
                 isPublished: true
               }
+            },
+            level: {
+              select: {
+                name: true
+              }
+            },
+            instructor: {
+              select: {
+                name: true,
+                image: true
+              }
             }
           }
         }
