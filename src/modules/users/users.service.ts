@@ -43,12 +43,11 @@ export class UsersService {
       data: {
         name,
         email,
+        isActive: true,
         password: hashPassword,
       }
     })
-    return {
-      id: user.id
-    };
+    return user;
   }
 
   async handleLoginGoogle(data: CreateUserDto) {
@@ -68,8 +67,48 @@ export class UsersService {
     return user;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(current: number, pageSize: number, search: string) {
+    if (!current || current < 1) current = 1;
+    if (!pageSize || pageSize < 1) pageSize = 10;
+    if (!search) search = "";
+
+    const skip = current > 1 ? (current - 1) * pageSize : 0;
+
+    const total = await this.prisma.user.count({
+      where: {
+        OR: [
+          { name: { contains: search } },
+        ],
+        AND: [
+          { deleted: false }
+        ]
+      },
+    });
+
+    const result = await this.prisma.user.findMany({
+      take: pageSize,
+      skip: skip,
+      where: {
+        OR: [
+          { name: { contains: search } },
+        ],
+        AND: [
+          { deleted: false }
+        ]
+      }
+    })
+
+    const totalPages = Math.ceil(total / pageSize);
+
+    return {
+      meta: {
+        current: current,
+        pageSize: pageSize,
+        pages: totalPages,
+        total: total
+      },
+      result
+    }
   }
 
   async findOne(id: string) {

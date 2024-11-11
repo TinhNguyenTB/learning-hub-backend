@@ -63,12 +63,12 @@ export class SubcategoriesService {
 
     return {
       meta: {
-        current: current, //trang hiện tại
-        pageSize: pageSize, //số lượng bản ghi trong 1 trang
-        pages: totalPages, //tổng số trang với điều kiện query
-        total: total // tổng số phần tử (số bản ghi)
+        current: current,
+        pageSize: pageSize,
+        pages: totalPages,
+        total: total
       },
-      result //kết quả query
+      result
     }
   }
 
