@@ -58,4 +58,14 @@ export class UsersController {
   ) {
     return this.usersService.changeRole(id, role);
   }
+
+  @Roles(Role.Admin)
+  @ResponseMessage("Change account activation")
+  @Post('change-active/:id')
+  changeActive(
+    @Param('id') id: string,
+    @Body("isActive") isActive: boolean
+  ) {
+    return this.usersService.changeActive(id, isActive);
+  }
 }

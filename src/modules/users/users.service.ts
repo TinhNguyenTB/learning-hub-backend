@@ -339,4 +339,20 @@ export class UsersService {
     })
     return user;
   }
+
+  async changeActive(id: string, isActive: boolean) {
+    let user = await this.prisma.user.findUnique({
+      where: { id }
+    })
+    if (!user) {
+      throw new BadRequestException("User not found")
+    }
+    user = await this.prisma.user.update({
+      where: { id },
+      data: {
+        isActive
+      }
+    })
+    return user;
+  }
 }
