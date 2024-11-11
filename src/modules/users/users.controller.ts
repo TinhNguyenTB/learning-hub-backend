@@ -39,10 +39,13 @@ export class UsersController {
     return this.usersService.update(+id, updateUserDto);
   }
 
+  @Roles(Role.Admin)
   @ResponseMessage("Delete user by id")
-  @Public()
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  remove(
+    @Param('id') id: string,
+    @Body("deleted") deleted: boolean
+  ) {
+    return this.usersService.remove(id, deleted);
   }
 }

@@ -78,9 +78,6 @@ export class UsersService {
       where: {
         OR: [
           { name: { contains: search } },
-        ],
-        AND: [
-          { deleted: false }
         ]
       },
     });
@@ -91,9 +88,6 @@ export class UsersService {
       where: {
         OR: [
           { name: { contains: search } },
-        ],
-        AND: [
-          { deleted: false }
         ]
       }
     })
@@ -113,10 +107,7 @@ export class UsersService {
 
   async findOne(id: string) {
     return this.prisma.user.findUnique({
-      where: {
-        id,
-        deleted: false
-      },
+      where: { id },
       select: {
         name: true,
         id: true,
@@ -141,7 +132,7 @@ export class UsersService {
     return `This action updates a #${id} user`;
   }
 
-  async remove(id: string) {
+  async remove(id: string, deleted: boolean) {
     let user = await this.prisma.user.findUnique({
       where: { id }
     })
@@ -149,12 +140,9 @@ export class UsersService {
       throw new BadRequestException("User not found")
     }
     user = await this.prisma.user.update({
-      where: {
-        id,
-        deleted: false
-      },
+      where: { id },
       data: {
-        deleted: true
+        deleted
       }
     })
     return {
