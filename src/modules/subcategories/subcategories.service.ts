@@ -10,7 +10,7 @@ export class SubcategoriesService {
   async create(createSubcategoryDto: CreateSubcategoryDto) {
     const { categoryId, name } = createSubcategoryDto;
     const subcategory = await this.prisma.subCategory.findFirst({
-      where: { name }
+      where: { name, deleted: false }
     })
     if (subcategory) {
       throw new BadRequestException(`Subcategory ${name} already exists`)
@@ -77,7 +77,25 @@ export class SubcategoriesService {
   }
 
   async update(id: string, updateSubcategoryDto: UpdateSubcategoryDto) {
-    return `This action updates a #${id} subcategory`;
+    if (!id) {
+      throw new BadRequestException("Missing required parameter")
+    }
+    let subcategory = await this.prisma.subCategory.findUnique({
+      where: {
+        id,
+        deleted: false
+      }
+    })
+    if (!subcategory) {
+      throw new BadRequestException("Subcategory not found")
+    }
+    return await this.prisma.subCategory.update({
+      where: { id },
+      data: {
+        categoryId: updateSubcategoryDto.categoryId,
+        name: updateSubcategoryDto.name
+      }
+    })
   }
 
   async remove(id: string) {

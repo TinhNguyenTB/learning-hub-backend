@@ -34,13 +34,13 @@ export class SubcategoriesController {
   }
 
   @Roles(Role.Admin)
-  @ResponseMessage("Create a new subcategory")
+  @ResponseMessage("Update subcategory")
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateSubcategoryDto: UpdateSubcategoryDto) {
     return this.subcategoriesService.update(id, updateSubcategoryDto);
   }
 
-  @Public()
+  @Roles(Role.Admin)
   @ResponseMessage("Delete subcategory by id")
   @Delete(':id')
   remove(@Param('id') id: string) {
