@@ -323,4 +323,20 @@ export class UsersService {
       updatedAt: result.updatedAt
     }
   }
+
+  async changeRole(id: string, role: string) {
+    let user = await this.prisma.user.findUnique({
+      where: { id }
+    })
+    if (!user) {
+      throw new BadRequestException("User not found")
+    }
+    user = await this.prisma.user.update({
+      where: { id },
+      data: {
+        role
+      }
+    })
+    return user;
+  }
 }

@@ -48,4 +48,14 @@ export class UsersController {
   ) {
     return this.usersService.remove(id, deleted);
   }
+
+  @Roles(Role.Admin)
+  @ResponseMessage("Change user role")
+  @Post('change-role/:id')
+  changeRole(
+    @Param('id') id: string,
+    @Body("role") role: string
+  ) {
+    return this.usersService.changeRole(id, role);
+  }
 }
