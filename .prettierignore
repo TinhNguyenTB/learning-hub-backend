@@ -1,0 +1,26 @@
+# Build output
+.next
+dist
+build
+
+# Dependencies
+node_modules
+
+# Static files
+public
+
+# Test coverage
+coverage
+
+# Config & env
+*.mjs
+*.cjs
+*.json
+.env
+.env.*
+*.config.*
+
+# Optional: lockfiles 
+package-lock.json
+pnpm-lock.yaml
+yarn.lock

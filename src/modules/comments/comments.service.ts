@@ -5,14 +5,14 @@ import { PrismaService } from '@/prisma.service';
 
 @Injectable()
 export class CommentsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createCommentDto: CreateCommentDto) {
     const { content, courseId, userId } = createCommentDto;
 
     return await this.prisma.comment.create({
-      data: { content, courseId, userId }
-    })
+      data: { content, courseId, userId },
+    });
   }
 
   async findAll(current: number, pageSize: number, courseId: string) {
@@ -22,7 +22,7 @@ export class CommentsService {
     const skip = current > 1 ? (current - 1) * pageSize : 0;
 
     const total = await this.prisma.comment.count({
-      where: { courseId, deleted: false }
+      where: { courseId, deleted: false },
     });
 
     const result = await this.prisma.comment.findMany({
@@ -33,51 +33,51 @@ export class CommentsService {
         user: {
           select: {
             name: true,
-            image: true
-          }
+            image: true,
+          },
         },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
-    })
+        createdAt: 'desc',
+      },
+    });
     const totalPages = Math.ceil(total / pageSize);
     return {
       meta: {
         current: current,
         pageSize: pageSize,
         pages: totalPages,
-        total: total
+        total: total,
       },
-      result
-    }
+      result,
+    };
   }
 
   async update(id: string, updateCommentDto: UpdateCommentDto) {
     const comment = await this.prisma.comment.findUnique({
-      where: { id, deleted: false }
-    })
+      where: { id, deleted: false },
+    });
     if (!comment) {
-      throw new BadGatewayException("Comment not found")
+      throw new BadGatewayException('Comment not found');
     }
 
     return await this.prisma.comment.update({
       where: { id },
-      data: { content: updateCommentDto.content }
-    })
+      data: { content: updateCommentDto.content },
+    });
   }
 
   async remove(id: string) {
     const comment = await this.prisma.comment.findUnique({
-      where: { id, deleted: false }
-    })
+      where: { id, deleted: false },
+    });
     if (!comment) {
-      throw new BadGatewayException("Comment not found")
+      throw new BadGatewayException('Comment not found');
     }
 
     return await this.prisma.comment.update({
       where: { id },
-      data: { deleted: true }
-    })
+      data: { deleted: true },
+    });
   }
 }

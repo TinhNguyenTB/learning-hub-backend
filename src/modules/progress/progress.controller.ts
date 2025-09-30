@@ -5,21 +5,21 @@ import { ResponseMessage } from '@/decorator/customize';
 
 @Controller('progress')
 export class ProgressController {
-  constructor(private readonly progressService: ProgressService) { }
+  constructor(private readonly progressService: ProgressService) {}
 
-  @ResponseMessage("UpSert progress by studentId and sectionId")
+  @ResponseMessage('UpSert progress by studentId and sectionId')
   @Post('upsert')
   upSert(@Body() upSertProgressDto: UpSertProgressDto) {
     return this.progressService.upSert(upSertProgressDto);
   }
 
-  @ResponseMessage("Count completed progress by sectionId")
+  @ResponseMessage('Count completed progress by sectionId')
   @Post('count-completed')
   findAll(@Body() completedProgressDto: CompletedProgressDto) {
     return this.progressService.findAll(completedProgressDto);
   }
 
-  @ResponseMessage("Get progress by studentId and sectionId")
+  @ResponseMessage('Get progress by studentId and sectionId')
   @Get()
   findOne(
     @Query('studentId') studentId: string,
@@ -27,5 +27,4 @@ export class ProgressController {
   ) {
     return this.progressService.findOne(studentId, sectionId);
   }
-
 }

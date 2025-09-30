@@ -7,4 +7,4 @@ import { PrismaService } from '@/prisma.service';
   controllers: [ResourcesController],
   providers: [ResourcesService, PrismaService],
 })
-export class ResourcesModule { }
+export class ResourcesModule {}

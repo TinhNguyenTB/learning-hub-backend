@@ -1,49 +1,55 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateCourseDto } from './create-course.dto';
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class UpdateCourseDto extends PartialType(CreateCourseDto) {
-    @IsOptional()
-    subTitle: string
+  @IsOptional()
+  subTitle: string;
 
-    @IsNotEmpty()
-    @IsString()
-    description: string
+  @IsNotEmpty()
+  @IsString()
+  description: string;
 
-    @IsNotEmpty()
-    @IsString()
-    imageUrl: string
+  @IsNotEmpty()
+  @IsString()
+  imageUrl: string;
 
-    @IsNumber()
-    price: number
+  @IsNumber()
+  price: number;
 
-    @IsOptional()
-    @IsBoolean()
-    isPublished: boolean
+  @IsOptional()
+  @IsBoolean()
+  isPublished: boolean;
 
-    @IsNotEmpty()
-    @IsString()
-    levelId: string
+  @IsNotEmpty()
+  @IsString()
+  levelId: string;
 }
 
 export class PublishCourseDto {
-    @IsNotEmpty()
-    @IsString()
-    courseId: string
+  @IsNotEmpty()
+  @IsString()
+  courseId: string;
 
-    @IsOptional()
-    sectionId: string
+  @IsOptional()
+  sectionId: string;
 
-    @IsBoolean()
-    isPublish: boolean
+  @IsBoolean()
+  isPublish: boolean;
 }
 
 export class ChangeStatusCourseDto {
-    @IsNotEmpty()
-    @IsString()
-    id: string
+  @IsNotEmpty()
+  @IsString()
+  id: string;
 
-    @IsNotEmpty()
-    @IsString()
-    statusName: string
+  @IsNotEmpty()
+  @IsString()
+  statusName: string;
 }

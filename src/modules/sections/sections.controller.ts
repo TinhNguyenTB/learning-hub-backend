@@ -1,57 +1,79 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { SectionsService } from './sections.service';
 import { CreateSectionDto } from './dto/create-section.dto';
-import { PublishSectionDto, ReorderSectionDto, UpdateSectionDto } from './dto/update-section.dto';
+import {
+  PublishSectionDto,
+  ReorderSectionDto,
+  UpdateSectionDto,
+} from './dto/update-section.dto';
 import { Public, ResponseMessage, User } from '@/decorator/customize';
 
 @Controller('sections')
 export class SectionsController {
-  constructor(private readonly sectionsService: SectionsService) { }
+  constructor(private readonly sectionsService: SectionsService) {}
 
-  @ResponseMessage("Create a new section")
+  @ResponseMessage('Create a new section')
   @Post()
   create(@Body() createSectionDto: CreateSectionDto, @User() user: IUser) {
     return this.sectionsService.create(createSectionDto, user);
   }
 
-  @ResponseMessage("Get published sections")
+  @ResponseMessage('Get published sections')
   @Public()
-  @Get("published")
-  findAll(@Query("courseId") courseId: string) {
+  @Get('published')
+  findAll(@Query('courseId') courseId: string) {
     return this.sectionsService.findAll(courseId);
   }
 
-  @ResponseMessage("Get published section by id")
+  @ResponseMessage('Get published section by id')
   @Get(':id/published')
   findOnePublished(@Param('id') id: string) {
     return this.sectionsService.findOnePublished(id);
   }
 
-  @ResponseMessage("Get section by id")
+  @ResponseMessage('Get section by id')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.sectionsService.findOne(id);
   }
 
-  @ResponseMessage("Update section")
+  @ResponseMessage('Update section')
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSectionDto: UpdateSectionDto, @User() user: IUser) {
+  update(
+    @Param('id') id: string,
+    @Body() updateSectionDto: UpdateSectionDto,
+    @User() user: IUser,
+  ) {
     return this.sectionsService.update(id, updateSectionDto, user);
   }
 
-  @ResponseMessage("Reorder section")
-  @Put("reorder")
+  @ResponseMessage('Reorder section')
+  @Put('reorder')
   reorder(@Body() reorderDto: ReorderSectionDto, @User() user: IUser) {
     return this.sectionsService.reorder(reorderDto, user);
   }
 
-  @ResponseMessage("Delete section by id")
+  @ResponseMessage('Delete section by id')
   @Delete(':id')
-  remove(@Param('id') id: string, @Body("courseId") courseId: string, @User() user: IUser) {
+  remove(
+    @Param('id') id: string,
+    @Body('courseId') courseId: string,
+    @User() user: IUser,
+  ) {
     return this.sectionsService.remove(id, courseId, user);
   }
 
-  @ResponseMessage("Publish a section")
+  @ResponseMessage('Publish a section')
   @Post('publish')
   publish(@Body() publishSectionDto: PublishSectionDto, @User() user: IUser) {
     return this.sectionsService.publish(publishSectionDto, user);

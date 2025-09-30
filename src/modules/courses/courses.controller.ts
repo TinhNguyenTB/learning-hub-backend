@@ -1,85 +1,107 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
-import { ChangeStatusCourseDto, PublishCourseDto, UpdateCourseDto } from './dto/update-course.dto';
+import {
+  ChangeStatusCourseDto,
+  PublishCourseDto,
+  UpdateCourseDto,
+} from './dto/update-course.dto';
 import { Public, ResponseMessage, User } from '@/decorator/customize';
 
 @Controller('courses')
 export class CoursesController {
-  constructor(private readonly coursesService: CoursesService) { }
+  constructor(private readonly coursesService: CoursesService) {}
 
   @Post()
-  @ResponseMessage("Create a new course")
+  @ResponseMessage('Create a new course')
   create(@Body() createCourseDto: CreateCourseDto, @User() user: IUser) {
     return this.coursesService.create(createCourseDto, user);
   }
 
   @Get()
   @Public()
-  @ResponseMessage("Get courses pagination")
+  @ResponseMessage('Get courses pagination')
   findAllPagination(
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
     @Query('categoryId') categoryId: string,
     @Query('search') search: string,
   ) {
-    return this.coursesService.findAllPagination(+current, +pageSize, categoryId, search);
+    return this.coursesService.findAllPagination(
+      +current,
+      +pageSize,
+      categoryId,
+      search,
+    );
   }
 
-  @Get("instructor")
-  @ResponseMessage("Get courses for instructor")
+  @Get('instructor')
+  @ResponseMessage('Get courses for instructor')
   findAll(@User() user: IUser) {
     return this.coursesService.findAll(user);
   }
 
-  @ResponseMessage("Get course by id for instructor")
+  @ResponseMessage('Get course by id for instructor')
   @Get(':id')
   findOne(@Param('id') id: string, @User() user: IUser) {
     return this.coursesService.findOne(id, user);
   }
 
   @Public()
-  @ResponseMessage("Get course by id for student")
+  @ResponseMessage('Get course by id for student')
   @Get(':id/published')
   findOneForStudent(@Param('id') id: string) {
     return this.coursesService.findOneForStudent(id);
   }
 
   @Public()
-  @ResponseMessage("Get featured courses")
+  @ResponseMessage('Get featured courses')
   @Post('featured')
   findFeatured() {
     return this.coursesService.findFeatured();
   }
 
-  @ResponseMessage("Update course")
+  @ResponseMessage('Update course')
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto, @User() user: IUser) {
+  update(
+    @Param('id') id: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+    @User() user: IUser,
+  ) {
     return this.coursesService.update(id, updateCourseDto, user);
   }
 
   @Public()
-  @ResponseMessage("Delete course by id")
+  @ResponseMessage('Delete course by id')
   @Delete()
-  remove(@Body("courseId") courseId: string) {
+  remove(@Body('courseId') courseId: string) {
     return this.coursesService.remove(courseId);
   }
 
-  @Post("publish")
-  @ResponseMessage("Publish a course")
+  @Post('publish')
+  @ResponseMessage('Publish a course')
   publish(@Body() publishCourseDto: PublishCourseDto, @User() user: IUser) {
     return this.coursesService.publish(publishCourseDto, user);
   }
 
   @Public()
-  @Post("change-status")
-  @ResponseMessage("Change course status")
+  @Post('change-status')
+  @ResponseMessage('Change course status')
   changeStatus(@Body() data: ChangeStatusCourseDto) {
     return this.coursesService.changeStatus(data);
   }
 
-  @Post(":id/checkout")
-  @ResponseMessage("Checkout course")
+  @Post(':id/checkout')
+  @ResponseMessage('Checkout course')
   checkout(@Param('id') id: string, @User() user: IUser) {
     return this.coursesService.checkout(id, user);
   }

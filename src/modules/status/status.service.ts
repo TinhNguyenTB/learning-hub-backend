@@ -5,21 +5,21 @@ import { PrismaService } from '@/prisma.service';
 
 @Injectable()
 export class StatusService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createStatusDto: CreateStatusDto) {
     const { name } = createStatusDto;
     const isExist = await this.prisma.status.findFirst({
       where: {
         name,
-        deleted: false
-      }
-    })
+        deleted: false,
+      },
+    });
     if (isExist) {
-      throw new BadRequestException(`${name} status  already exist`)
+      throw new BadRequestException(`${name} status  already exist`);
     }
     return await this.prisma.status.create({
-      data: { name }
+      data: { name },
     });
   }
 

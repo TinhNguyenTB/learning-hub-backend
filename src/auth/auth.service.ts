@@ -10,7 +10,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) { }
+  ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(username);
@@ -23,7 +23,7 @@ export class AuthService {
       return null;
     }
 
-    delete user.password
+    delete user.password;
     return user;
   }
 
@@ -32,7 +32,7 @@ export class AuthService {
       name: user.name,
       id: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
     };
 
     return {
@@ -42,18 +42,17 @@ export class AuthService {
         name: user.name,
         image: user.image,
         role: user.role,
-        isActive: user.isActive
+        isActive: user.isActive,
       },
-      access_token: this.jwtService.sign(payload)
+      access_token: this.jwtService.sign(payload),
     };
   }
 
   async validateGoogleUser(googleUser: CreateUserDto) {
     const user = await this.usersService.findByEmail(googleUser.email);
     if (user) {
-      return user
+      return user;
     }
-    return await this.usersService.handleLoginGoogle(googleUser)
+    return await this.usersService.handleLoginGoogle(googleUser);
   }
-
 }

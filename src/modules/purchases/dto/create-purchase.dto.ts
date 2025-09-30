@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsString } from "class-validator"
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreatePurchaseDto {
-    @IsNotEmpty()
-    @IsString()
-    customerId: string
+  @IsNotEmpty()
+  @IsString()
+  customerId: string;
 
-    @IsNotEmpty()
-    @IsString()
-    courseId: string
+  @IsNotEmpty()
+  @IsString()
+  courseId: string;
 }

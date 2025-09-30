@@ -1,63 +1,72 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateSectionDto } from './create-section.dto';
-import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class UpdateSectionDto extends PartialType(CreateSectionDto) {
-    @IsNotEmpty()
-    @IsString()
-    description: string
+  @IsNotEmpty()
+  @IsString()
+  description: string;
 
-    @IsNotEmpty()
-    @IsString()
-    videoUrl: string
+  @IsNotEmpty()
+  @IsString()
+  videoUrl: string;
 
-    @IsOptional()
-    @IsBoolean()
-    isPublished: boolean
+  @IsOptional()
+  @IsBoolean()
+  isPublished: boolean;
 
-    @IsOptional()
-    @IsBoolean()
-    isFree: boolean
+  @IsOptional()
+  @IsBoolean()
+  isFree: boolean;
 
-    @IsNotEmpty()
-    @IsString()
-    courseId: string
+  @IsNotEmpty()
+  @IsString()
+  courseId: string;
 
-    @IsNotEmpty()
-    @IsNumber()
-    videoDuration: number
+  @IsOptional()
+  @IsNotEmpty()
+  @IsNumber()
+  videoDuration: number;
 }
 
 export class PublishSectionDto {
-    @IsNotEmpty()
-    @IsString()
-    courseId: string
+  @IsNotEmpty()
+  @IsString()
+  courseId: string;
 
-    @IsNotEmpty()
-    @IsString()
-    sectionId: string
+  @IsNotEmpty()
+  @IsString()
+  sectionId: string;
 
-    @IsBoolean()
-    isPublish: boolean
+  @IsBoolean()
+  isPublish: boolean;
 }
 
 export class ReorderSectionDto {
-    @IsArray()
-    @ValidateNested()
-    @Type(() => List)
-    list: List[]
+  @IsArray()
+  @ValidateNested()
+  @Type(() => List)
+  list: List[];
 
-    @IsNotEmpty()
-    courseId: string
+  @IsNotEmpty()
+  courseId: string;
 }
 
 class List {
-    @IsNotEmpty()
-    @IsString()
-    id: string
+  @IsNotEmpty()
+  @IsString()
+  id: string;
 
-    @IsNotEmpty()
-    @IsNumber()
-    position: number
+  @IsNotEmpty()
+  @IsNumber()
+  position: number;
 }

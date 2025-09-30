@@ -1,11 +1,11 @@
-import { IsNotEmpty, IsString } from "class-validator"
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateSectionDto {
-    @IsNotEmpty()
-    @IsString()
-    title: string
+  @IsNotEmpty()
+  @IsString()
+  title: string;
 
-    @IsNotEmpty()
-    @IsString()
-    courseId: string
+  @IsNotEmpty()
+  @IsString()
+  courseId: string;
 }

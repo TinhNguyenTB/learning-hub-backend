@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -8,10 +17,10 @@ import { Role } from '@/enums/role.enum';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Roles(Role.Admin)
-  @ResponseMessage("Create a new user")
+  @ResponseMessage('Create a new user')
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
@@ -28,7 +37,7 @@ export class UsersController {
   }
 
   @Roles(Role.Admin)
-  @ResponseMessage("Get user by id")
+  @ResponseMessage('Get user by id')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
@@ -40,32 +49,23 @@ export class UsersController {
   }
 
   @Roles(Role.Admin)
-  @ResponseMessage("Delete user by id")
+  @ResponseMessage('Delete user by id')
   @Delete(':id')
-  remove(
-    @Param('id') id: string,
-    @Body("deleted") deleted: boolean
-  ) {
+  remove(@Param('id') id: string, @Body('deleted') deleted: boolean) {
     return this.usersService.remove(id, deleted);
   }
 
   @Roles(Role.Admin)
-  @ResponseMessage("Change user role")
+  @ResponseMessage('Change user role')
   @Post('change-role/:id')
-  changeRole(
-    @Param('id') id: string,
-    @Body("role") role: string
-  ) {
+  changeRole(@Param('id') id: string, @Body('role') role: string) {
     return this.usersService.changeRole(id, role);
   }
 
   @Roles(Role.Admin)
-  @ResponseMessage("Change account activation")
+  @ResponseMessage('Change account activation')
   @Post('change-active/:id')
-  changeActive(
-    @Param('id') id: string,
-    @Body("isActive") isActive: boolean
-  ) {
+  changeActive(@Param('id') id: string, @Body('isActive') isActive: boolean) {
     return this.usersService.changeActive(id, isActive);
   }
 }

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { StatusService } from './status.service';
 import { CreateStatusDto } from './dto/create-status.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
@@ -6,9 +14,9 @@ import { Public, ResponseMessage } from '@/decorator/customize';
 
 @Controller('status')
 export class StatusController {
-  constructor(private readonly statusService: StatusService) { }
+  constructor(private readonly statusService: StatusService) {}
 
-  @ResponseMessage("Create a new status")
+  @ResponseMessage('Create a new status')
   @Post()
   create(@Body() createStatusDto: CreateStatusDto) {
     return this.statusService.create(createStatusDto);
@@ -16,7 +24,7 @@ export class StatusController {
 
   @Get()
   @Public()
-  @ResponseMessage("Get all status")
+  @ResponseMessage('Get all status')
   findAll() {
     return this.statusService.findAll();
   }

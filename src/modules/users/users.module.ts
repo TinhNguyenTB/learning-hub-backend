@@ -8,4 +8,4 @@ import { PrismaService } from '@/prisma.service';
   providers: [UsersService, PrismaService],
   exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

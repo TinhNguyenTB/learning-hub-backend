@@ -41,11 +41,9 @@ import { CommentsModule } from '@/modules/comments/comments.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         transport: {
-          host: "smtp.gmail.com",
+          host: 'smtp.gmail.com',
           port: 465,
           secure: true,
-          // ignoreTLS: true,
-          // secure: false,
           auth: {
             user: configService.get<string>('MAIL_USER'),
             pass: configService.get<string>('MAIL_PASS'),
@@ -54,7 +52,6 @@ import { CommentsModule } from '@/modules/comments/comments.module';
         defaults: {
           from: '"Learning Hub" <no-reply@localhost>',
         },
-        // preview: true,
         template: {
           dir: process.cwd() + '/src/mail/templates/',
           adapter: new HandlebarsAdapter(),
@@ -69,4 +66,4 @@ import { CommentsModule } from '@/modules/comments/comments.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -17,10 +17,12 @@ async function bootstrap() {
   const port = configService.get('PORT');
   const reflector = app.get(Reflector);
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   // Enable interceptor globally
   app.useGlobalInterceptors(new TransformInterceptor(reflector));
@@ -28,25 +30,23 @@ async function bootstrap() {
   // Enable authentication globally
   app.useGlobalGuards(new JwtAuthGuard(reflector));
 
-  app.useGlobalGuards(new RolesGuard(reflector))
+  app.useGlobalGuards(new RolesGuard(reflector));
 
-  app.setGlobalPrefix('api', { exclude: [''] })
+  app.setGlobalPrefix('api', { exclude: [''] });
 
   // version 1
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: ['1']
-  })
+    defaultVersion: ['1'],
+  });
 
   //config cors
-  app.enableCors(
-    {
-      "origin": true,
-      "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-      "preflightContinue": false,
-      credentials: true
-    }
-  );
+  app.enableCors({
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    credentials: true,
+  });
 
   await app.listen(port);
 }

@@ -1,6 +1,14 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
-import { ChangeStatusCourseDto, PublishCourseDto, UpdateCourseDto } from './dto/update-course.dto';
+import {
+  ChangeStatusCourseDto,
+  PublishCourseDto,
+  UpdateCourseDto,
+} from './dto/update-course.dto';
 import { PrismaService } from '@/prisma.service';
 import { validateFields } from '@/helpers/utils';
 import Stripe from 'stripe';
@@ -12,33 +20,33 @@ import { courseStatus } from '@/lib/constants';
 export class CoursesService {
   constructor(
     private prisma: PrismaService,
-    private configService: ConfigService
-  ) { }
+    private configService: ConfigService,
+  ) {}
 
   async checkCourseExistsByTitle(title: string) {
     const course = await this.prisma.course.findFirst({
       where: {
         title,
-        deleted: false
-      }
-    })
+        deleted: false,
+      },
+    });
     if (course) {
-      throw new BadRequestException(`Course ${title} already exists`)
+      throw new BadRequestException(`Course ${title} already exists`);
     }
-    return false
+    return false;
   }
 
   async checkCourseExistsById(id: string) {
     const course = await this.prisma.course.findUnique({
       where: {
         id,
-        deleted: false
-      }
-    })
+        deleted: false,
+      },
+    });
     if (!course) {
-      throw new BadRequestException("Course not found")
+      throw new BadRequestException('Course not found');
     }
-    return true
+    return true;
   }
 
   async create(createCourseDto: CreateCourseDto, user: IUser) {
@@ -51,19 +59,24 @@ export class CoursesService {
           categoryId,
           subCategoryId,
           instructorId: user.id,
-          statusName: courseStatus.PENDING
-        }
-      })
+          statusName: courseStatus.PENDING,
+        },
+      });
       return {
-        id: newCourse.id
-      }
+        id: newCourse.id,
+      };
     }
   }
 
-  async findAllPagination(current: number, pageSize: number, categoryId: string, search: string) {
+  async findAllPagination(
+    current: number,
+    pageSize: number,
+    categoryId: string,
+    search: string,
+  ) {
     if (!current || current < 1) current = 1;
     if (!pageSize || pageSize < 1) pageSize = 10;
-    if (!search) search = "";
+    if (!search) search = '';
 
     const skip = current > 1 ? (current - 1) * pageSize : 0;
 
@@ -78,8 +91,8 @@ export class CoursesService {
           // { statusName: "APPROVED" },
           ...(categoryId ? [{ categoryId }] : []),
           { deleted: false },
-          { isPublished: true }
-        ]
+          { isPublished: true },
+        ],
       },
     });
 
@@ -96,44 +109,44 @@ export class CoursesService {
           // { statusName: "APPROVED" },
           ...(categoryId ? [{ categoryId }] : []),
           { deleted: false },
-          { isPublished: true }
-        ]
+          { isPublished: true },
+        ],
       },
       include: {
         category: {
           select: {
             name: true,
-            id: true
-          }
+            id: true,
+          },
         },
         instructor: {
           select: {
             name: true,
-            id: true
-          }
+            id: true,
+          },
         },
         subCategory: {
           select: {
             name: true,
-            id: true
-          }
+            id: true,
+          },
         },
         level: {
           select: {
             name: true,
-            id: true
-          }
+            id: true,
+          },
         },
         sections: {
           where: {
-            isPublished: true
-          }
-        }
+            isPublished: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
-    })
+        createdAt: 'desc',
+      },
+    });
 
     const totalPages = Math.ceil(total / pageSize);
 
@@ -142,19 +155,19 @@ export class CoursesService {
         current: current, //trang hiện tại
         pageSize: pageSize, //số lượng bản ghi đã lấy
         pages: totalPages, //tổng số trang với điều kiện query
-        total: total // tổng số phần tử (số bản ghi)
+        total: total, // tổng số phần tử (số bản ghi)
       },
-      result //kết quả query
-    }
+      result, //kết quả query
+    };
   }
 
   async findAll(user: IUser) {
     return await this.prisma.course.findMany({
       where: {
         instructorId: user.id,
-        deleted: false
-      }
-    })
+        deleted: false,
+      },
+    });
   }
 
   async findFeatured() {
@@ -162,27 +175,27 @@ export class CoursesService {
       take: 4,
       where: {
         deleted: false,
-        isPublished: true
+        isPublished: true,
       },
       include: {
         level: {
           select: {
             name: true,
-            id: true
-          }
+            id: true,
+          },
         },
         instructor: {
           select: {
             name: true,
             id: true,
-            image: true
-          }
-        }
+            image: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
-    })
+        createdAt: 'desc',
+      },
+    });
   }
 
   async findOne(id: string, user: IUser) {
@@ -190,16 +203,16 @@ export class CoursesService {
       where: {
         id,
         instructorId: user.id,
-        deleted: false
+        deleted: false,
       },
       include: {
         sections: {
           orderBy: {
-            position: 'asc'
-          }
-        }
-      }
-    })
+            position: 'asc',
+          },
+        },
+      },
+    });
   }
 
   async findOneForStudent(id: string) {
@@ -207,20 +220,20 @@ export class CoursesService {
       where: {
         id,
         deleted: false,
-        isPublished: true
+        isPublished: true,
       },
       include: {
         sections: {
           where: {
-            isPublished: true
+            isPublished: true,
           },
           orderBy: {
-            position: 'asc'
-          }
+            position: 'asc',
+          },
         },
-        instructor: true
-      }
-    })
+        instructor: true,
+      },
+    });
   }
 
   async update(id: string, updateCourseDto: UpdateCourseDto, user: IUser) {
@@ -229,12 +242,12 @@ export class CoursesService {
       return await this.prisma.course.update({
         where: {
           id,
-          instructorId: user.id
+          instructorId: user.id,
         },
         data: {
-          ...updateCourseDto
-        }
-      })
+          ...updateCourseDto,
+        },
+      });
     }
   }
 
@@ -244,13 +257,13 @@ export class CoursesService {
     if (isExist) {
       const course = await this.prisma.course.update({
         where: {
-          id: courseId
+          id: courseId,
         },
-        data: { deleted: true }
-      })
+        data: { deleted: true },
+      });
       return {
-        deleted: course.deleted
-      }
+        deleted: course.deleted,
+      };
     }
   }
 
@@ -259,34 +272,46 @@ export class CoursesService {
     const course = await this.prisma.course.findUnique({
       where: {
         id: publishCourseDto.courseId,
-        instructorId: user.id
+        instructorId: user.id,
       },
       include: {
-        sections: true
-      }
-    })
+        sections: true,
+      },
+    });
     if (!course) {
-      throw new NotFoundException("Course not found")
+      throw new NotFoundException('Course not found');
     }
     // check course validity before publishing
-    const isPublishedSections = course.sections.some(section => section.isPublished);
+    const isPublishedSections = course.sections.some(
+      (section) => section.isPublished,
+    );
     if (!isPublishedSections) {
-      throw new BadRequestException("This course does not have any published section")
+      throw new BadRequestException(
+        'This course does not have any published section',
+      );
     }
 
-    const requiredFields = ['title', 'description', 'categoryId', 'subCategoryId', 'levelId', 'imageUrl', 'price'];
+    const requiredFields = [
+      'title',
+      'description',
+      'categoryId',
+      'subCategoryId',
+      'levelId',
+      'imageUrl',
+      'price',
+    ];
     const isValid = validateFields(course, requiredFields);
 
     if (isValid) {
       return await this.prisma.course.update({
         where: {
           id: publishCourseDto.courseId,
-          instructorId: user.id
+          instructorId: user.id,
         },
         data: {
           isPublished: publishCourseDto.isPublish,
-        }
-      })
+        },
+      });
     }
   }
 
@@ -296,12 +321,12 @@ export class CoursesService {
     if (isExist) {
       return await this.prisma.course.update({
         where: {
-          id: data.id
+          id: data.id,
         },
         data: {
-          statusName: data.statusName
-        }
-      })
+          statusName: data.statusName,
+        },
+      });
     }
   }
 
@@ -311,20 +336,20 @@ export class CoursesService {
       where: {
         id,
         deleted: false,
-        isPublished: true
-      }
-    })
+        isPublished: true,
+      },
+    });
     if (!course) {
-      throw new NotFoundException("Course not found")
+      throw new NotFoundException('Course not found');
     }
     // check purchase exist
     const purchase = await this.prisma.purchase.findUnique({
       where: {
-        customerId_courseId: { courseId: course.id, customerId: user.id }
-      }
-    })
+        customerId_courseId: { courseId: course.id, customerId: user.id },
+      },
+    });
     if (purchase) {
-      throw new BadRequestException("Course already purchase")
+      throw new BadRequestException('Course already purchase');
     }
     // create line_items
     const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [
@@ -333,34 +358,34 @@ export class CoursesService {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: course.title
+            name: course.title,
           },
-          unit_amount: Math.round(course.price * 100)
-        }
-      }
-    ]
+          unit_amount: Math.round(course.price * 100),
+        },
+      },
+    ];
     // create stripe_customer
     let stripe_customer = await this.prisma.stripeCustomer.findUnique({
       where: {
-        customerId: user.id
+        customerId: user.id,
       },
       select: {
-        stripeCustomerId: true
-      }
-    })
+        stripeCustomerId: true,
+      },
+    });
     if (!stripe_customer) {
       const customer = await stripe.customers.create({
-        email: user.email
+        email: user.email,
       });
       stripe_customer = await this.prisma.stripeCustomer.create({
         data: {
           customerId: user.id,
-          stripeCustomerId: customer.id
-        }
-      })
+          stripeCustomerId: customer.id,
+        },
+      });
     }
     // create payment session
-    const frontendUrl = this.configService.get<string>("FRONTEND_URL")
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
     const session = await stripe.checkout.sessions.create({
       customer: stripe_customer.stripeCustomerId,
       payment_method_types: ['card'],
@@ -370,11 +395,11 @@ export class CoursesService {
       cancel_url: `${frontendUrl}/courses/${course.id}/overview?canceled=true`,
       metadata: {
         courseId: course.id,
-        customerId: user.id
-      }
-    })
+        customerId: user.id,
+      },
+    });
     return {
-      url: session.url
-    }
+      url: session.url,
+    };
   }
 }

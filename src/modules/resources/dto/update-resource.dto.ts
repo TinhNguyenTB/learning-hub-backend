@@ -3,7 +3,7 @@ import { CreateResourceDto } from './create-resource.dto';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateResourceDto extends PartialType(CreateResourceDto) {
-    @IsNotEmpty()
-    @IsString()
-    id: string
+  @IsNotEmpty()
+  @IsString()
+  id: string;
 }

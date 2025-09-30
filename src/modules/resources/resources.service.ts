@@ -1,13 +1,15 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateResourceDto } from './dto/create-resource.dto';
 import { UpdateResourceDto } from './dto/update-resource.dto';
 import { PrismaService } from '@/prisma.service';
 
 @Injectable()
 export class ResourcesService {
-  constructor(
-    private prisma: PrismaService
-  ) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createResourceDto: CreateResourceDto, user: IUser) {
     // check course exist
@@ -15,43 +17,43 @@ export class ResourcesService {
       where: {
         id: createResourceDto.courseId,
         deleted: false,
-        instructorId: user.id
-      }
-    })
+        instructorId: user.id,
+      },
+    });
     if (!course) {
-      throw new NotFoundException("Course not found")
+      throw new NotFoundException('Course not found');
     }
     // check section exist
     const section = await this.prisma.section.findUnique({
       where: {
         id: createResourceDto.sectionId,
         deleted: false,
-        courseId: createResourceDto.courseId
-      }
-    })
+        courseId: createResourceDto.courseId,
+      },
+    });
     if (!section) {
-      throw new NotFoundException("Section not found")
+      throw new NotFoundException('Section not found');
     }
 
-    const { name, fileUrl } = createResourceDto
+    const { name, fileUrl } = createResourceDto;
     const resource = await this.prisma.resource.create({
       data: {
         name,
         fileUrl,
-        sectionId: createResourceDto.sectionId
-      }
-    })
+        sectionId: createResourceDto.sectionId,
+      },
+    });
 
     return resource;
   }
 
   async findAll(sectionId: string) {
     if (!sectionId) {
-      throw new BadRequestException("sectionId is required")
+      throw new BadRequestException('sectionId is required');
     }
     return await this.prisma.resource.findMany({
-      where: { sectionId, deleted: false }
-    })
+      where: { sectionId, deleted: false },
+    });
   }
 
   findOne(id: number) {
@@ -64,27 +66,27 @@ export class ResourcesService {
 
   async remove(id: string, sectionId: string) {
     if (!id || !sectionId) {
-      throw new BadRequestException("Missing required parameters")
+      throw new BadRequestException('Missing required parameters');
     }
     let resource = await this.prisma.resource.findUnique({
       where: {
         id,
-        deleted: false
-      }
-    })
+        deleted: false,
+      },
+    });
     if (!resource) {
-      throw new BadRequestException("Resource not found")
+      throw new BadRequestException('Resource not found');
     }
     resource = await this.prisma.resource.update({
       where: {
         id,
         sectionId: sectionId,
-        deleted: false
+        deleted: false,
       },
-      data: { deleted: true }
-    })
+      data: { deleted: true },
+    });
     return {
-      deleted: resource.deleted
-    }
+      deleted: resource.deleted,
+    };
   }
 }

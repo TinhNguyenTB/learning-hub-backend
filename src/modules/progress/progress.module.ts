@@ -7,4 +7,4 @@ import { PrismaService } from '@/prisma.service';
   controllers: [ProgressController],
   providers: [ProgressService, PrismaService],
 })
-export class ProgressModule { }
+export class ProgressModule {}

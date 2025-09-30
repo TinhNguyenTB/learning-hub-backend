@@ -2,7 +2,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '@/modules/users/dto/create-user.dto';
 import { UpdateUserDto } from '@/modules/users/dto/update-user.dto';
 import { PrismaService } from '@/prisma.service';
-import { comparePassword, generateHashPassword, generateOTP } from '@/helpers/utils';
+import {
+  comparePassword,
+  generateHashPassword,
+  generateOTP,
+} from '@/helpers/utils';
 import { ActiveDto, ChangePasswordDto, RegisterDto } from '@/auth/dto/auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
@@ -15,15 +19,15 @@ export class UsersService {
   constructor(
     private prisma: PrismaService,
     private readonly mailerService: MailerService,
-    private configService: ConfigService
-  ) { }
+    private configService: ConfigService,
+  ) {}
 
   async isEmailExist(email: string) {
     const user = await this.prisma.user.findFirst({
       where: {
-        email
-      }
-    })
+        email,
+      },
+    });
     if (user) {
       return true;
     }
@@ -35,34 +39,36 @@ export class UsersService {
     // check email
     const isExist = await this.isEmailExist(email);
     if (isExist) {
-      throw new BadRequestException(`Email '${email}' already in use. Please try another email.`)
+      throw new BadRequestException(
+        `Email '${email}' already in use. Please try another email.`,
+      );
     }
     // hash password
-    const hashPassword = await generateHashPassword(password)
+    const hashPassword = await generateHashPassword(password);
     const user = await this.prisma.user.create({
       data: {
         name,
         email,
         isActive: true,
         password: hashPassword,
-      }
-    })
+      },
+    });
     return user;
   }
 
   async handleLoginGoogle(data: CreateUserDto) {
     const { email, name, password, image } = data;
     // hash password
-    const hashPassword = await generateHashPassword(password)
+    const hashPassword = await generateHashPassword(password);
     const user = await this.prisma.user.create({
       data: {
         name,
         email,
         password: hashPassword,
         isActive: true,
-        image: image ?? null
-      }
-    })
+        image: image ?? null,
+      },
+    });
 
     return user;
   }
@@ -70,15 +76,13 @@ export class UsersService {
   async findAll(current: number, pageSize: number, search: string) {
     if (!current || current < 1) current = 1;
     if (!pageSize || pageSize < 1) pageSize = 10;
-    if (!search) search = "";
+    if (!search) search = '';
 
     const skip = current > 1 ? (current - 1) * pageSize : 0;
 
     const total = await this.prisma.user.count({
       where: {
-        OR: [
-          { name: { contains: search } },
-        ]
+        OR: [{ name: { contains: search } }],
       },
     });
 
@@ -86,11 +90,9 @@ export class UsersService {
       take: pageSize,
       skip: skip,
       where: {
-        OR: [
-          { name: { contains: search } },
-        ]
-      }
-    })
+        OR: [{ name: { contains: search } }],
+      },
+    });
 
     const totalPages = Math.ceil(total / pageSize);
 
@@ -99,10 +101,10 @@ export class UsersService {
         current: current,
         pageSize: pageSize,
         pages: totalPages,
-        total: total
+        total: total,
       },
-      result
-    }
+      result,
+    };
   }
 
   async findOne(id: string) {
@@ -114,18 +116,18 @@ export class UsersService {
         email: true,
         image: true,
         role: true,
-        isActive: true
-      }
-    })
+        isActive: true,
+      },
+    });
   }
 
   async findByEmail(email: string) {
     return await this.prisma.user.findFirst({
       where: {
         email,
-        deleted: false
-      }
-    })
+        deleted: false,
+      },
+    });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
@@ -134,20 +136,20 @@ export class UsersService {
 
   async remove(id: string, deleted: boolean) {
     let user = await this.prisma.user.findUnique({
-      where: { id }
-    })
+      where: { id },
+    });
     if (!user) {
-      throw new BadRequestException("User not found")
+      throw new BadRequestException('User not found');
     }
     user = await this.prisma.user.update({
       where: { id },
       data: {
-        deleted
-      }
-    })
+        deleted,
+      },
+    });
     return {
-      deleted: user.deleted
-    }
+      deleted: user.deleted,
+    };
   }
 
   sendEmailActivate(user: User, codeId: string, codeExpired: number) {
@@ -158,8 +160,8 @@ export class UsersService {
       context: {
         name: user.name ?? user.email,
         activationCode: codeId,
-        codeExpired: codeExpired
-      }
+        codeExpired: codeExpired,
+      },
     });
   }
 
@@ -171,7 +173,7 @@ export class UsersService {
       context: {
         name: user.name ?? user.email,
         newPassword: randomPass,
-      }
+      },
     });
   }
 
@@ -180,15 +182,17 @@ export class UsersService {
     // check email
     const isExist = await this.isEmailExist(email);
     if (isExist) {
-      throw new BadRequestException(`Email '${email}' already in use. Please try another email.`)
+      throw new BadRequestException(
+        `Email '${email}' already in use. Please try another email.`,
+      );
     }
     if (password !== confirmPassword) {
-      throw new BadRequestException(`Passwords don't match`)
+      throw new BadRequestException(`Passwords don't match`);
     }
     // hash password
     const hashPassword = await generateHashPassword(password);
-    const codeId = generateOTP()
-    const codeExpired = this.configService.get<number>("ACTIVE_CODE_EXPIRED")
+    const codeId = generateOTP();
+    const codeExpired = this.configService.get<number>('ACTIVE_CODE_EXPIRED');
     const user = await this.prisma.user.create({
       data: {
         name,
@@ -196,14 +200,14 @@ export class UsersService {
         password: hashPassword,
         isActive: false,
         codeId: codeId,
-        codeExpired: dayjs().add(codeExpired, 'minutes').toDate()
-      }
-    })
+        codeExpired: dayjs().add(codeExpired, 'minutes').toDate(),
+      },
+    });
     //send email
-    this.sendEmailActivate(user, codeId, codeExpired)
+    this.sendEmailActivate(user, codeId, codeExpired);
     return {
       id: user.id,
-      email: user.email
+      email: user.email,
     };
   }
 
@@ -211,148 +215,154 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({
       where: {
         id: activeDto.id,
-        codeId: activeDto.code
-      }
-    })
+        codeId: activeDto.code,
+      },
+    });
     if (!user) {
-      throw new BadRequestException("Your activation code is invalid")
+      throw new BadRequestException('Your activation code is invalid');
     }
     // check activation code expired
     const isBeforeCheck = dayjs().isBefore(user.codeExpired);
     if (isBeforeCheck) {
       await this.prisma.user.update({
         where: {
-          id: activeDto.id
+          id: activeDto.id,
         },
         data: {
-          isActive: true
-        }
+          isActive: true,
+        },
       });
-    }
-    else {
-      throw new BadRequestException("Your activation code is invalid or has expired")
+    } else {
+      throw new BadRequestException(
+        'Your activation code is invalid or has expired',
+      );
     }
     return {
-      isActive: isBeforeCheck
-    }
+      isActive: isBeforeCheck,
+    };
   }
 
   async handleRetryActivate(email: string) {
     const user = await this.prisma.user.findFirst({
-      where: { email }
+      where: { email },
     });
     if (!user) {
-      throw new BadRequestException("Account is not exist")
-    }
-    else if (user.isActive) {
-      throw new BadRequestException("Account has been activated")
+      throw new BadRequestException('Account is not exist');
+    } else if (user.isActive) {
+      throw new BadRequestException('Account has been activated');
     }
     // update codeId and codeExpired
-    const codeId = generateOTP()
-    const codeExpired = this.configService.get<number>("ACTIVE_CODE_EXPIRED")
+    const codeId = generateOTP();
+    const codeExpired = this.configService.get<number>('ACTIVE_CODE_EXPIRED');
     await this.prisma.user.update({
       where: {
-        id: user.id
+        id: user.id,
       },
       data: {
         codeId: codeId,
-        codeExpired: dayjs().add(codeExpired, 'minutes').toDate()
-      }
-    })
+        codeExpired: dayjs().add(codeExpired, 'minutes').toDate(),
+      },
+    });
     //send email
-    this.sendEmailActivate(user, codeId, codeExpired)
+    this.sendEmailActivate(user, codeId, codeExpired);
     return {
-      id: user.id
-    }
+      id: user.id,
+    };
   }
 
   async handleForgotPassword(email: string) {
     if (!email) {
-      throw new BadRequestException("Email is required")
+      throw new BadRequestException('Email is required');
     }
     const user = await this.prisma.user.findFirst({
-      where: { email }
+      where: { email },
     });
     if (!user) {
-      throw new BadRequestException("Account is not exist")
+      throw new BadRequestException('Account is not exist');
     }
     // update codeId and codeExpired
     const randomPass = uuidv4().slice(0, 8); // get first 8 chars
     const newPassword = await generateHashPassword(randomPass);
     await this.prisma.user.update({
       where: {
-        id: user.id
+        id: user.id,
       },
       data: {
-        password: newPassword
-      }
-    })
+        password: newPassword,
+      },
+    });
     //send email
-    this.sendEmailForgotPassword(user, randomPass)
+    this.sendEmailForgotPassword(user, randomPass);
     return;
   }
 
-  async handleChangePassword(changePasswordDto: ChangePasswordDto, user: IUser) {
+  async handleChangePassword(
+    changePasswordDto: ChangePasswordDto,
+    user: IUser,
+  ) {
     const findUser = await this.prisma.user.findUnique({
       where: {
         id: user.id,
-        email: user.email
-      }
+        email: user.email,
+      },
     });
     if (!findUser) {
-      throw new BadRequestException("Account is not exist")
+      throw new BadRequestException('Account is not exist');
     }
-    const isValidPassword = await comparePassword(changePasswordDto.oldPassword, findUser.password);
+    const isValidPassword = await comparePassword(
+      changePasswordDto.oldPassword,
+      findUser.password,
+    );
     if (!isValidPassword) {
-      throw new BadRequestException("Old password is incorrect")
+      throw new BadRequestException('Old password is incorrect');
     }
     if (changePasswordDto.password !== changePasswordDto.confirmPassword) {
-      throw new BadRequestException("Passwords do not match")
+      throw new BadRequestException('Passwords do not match');
     }
     const newPassword = await generateHashPassword(changePasswordDto.password);
     const result = await this.prisma.user.update({
       where: {
-        id: user.id
+        id: user.id,
       },
       data: {
-        password: newPassword
-      }
-    })
+        password: newPassword,
+      },
+    });
     return {
       id: result.id,
-      updatedAt: result.updatedAt
-    }
+      updatedAt: result.updatedAt,
+    };
   }
 
   async changeRole(id: string, role: string) {
     let user = await this.prisma.user.findUnique({
-      where: { id }
-    })
+      where: { id },
+    });
     if (!user) {
-      throw new BadRequestException("User not found")
+      throw new BadRequestException('User not found');
     }
     user = await this.prisma.user.update({
       where: { id },
       data: {
-        role
-      }
-    })
+        role,
+      },
+    });
     return user;
   }
 
   async changeActive(id: string, isActive: boolean) {
     let user = await this.prisma.user.findUnique({
-      where: { id }
-    })
+      where: { id },
+    });
     if (!user) {
-      throw new BadRequestException("User not found")
+      throw new BadRequestException('User not found');
     }
     user = await this.prisma.user.update({
       where: { id },
       data: {
-        isActive
-      }
-    })
+        isActive,
+      },
+    });
     return user;
   }
 }

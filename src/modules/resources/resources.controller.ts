@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ResourcesService } from './resources.service';
 import { CreateResourceDto } from './dto/create-resource.dto';
 import { UpdateResourceDto } from './dto/update-resource.dto';
@@ -6,17 +15,17 @@ import { ResponseMessage, User } from '@/decorator/customize';
 
 @Controller('resources')
 export class ResourcesController {
-  constructor(private readonly resourcesService: ResourcesService) { }
+  constructor(private readonly resourcesService: ResourcesService) {}
 
-  @ResponseMessage("Create a new resource")
+  @ResponseMessage('Create a new resource')
   @Post()
   create(@Body() createResourceDto: CreateResourceDto, @User() user: IUser) {
     return this.resourcesService.create(createResourceDto, user);
   }
 
-  @ResponseMessage("Get resources by sectionId")
+  @ResponseMessage('Get resources by sectionId')
   @Get()
-  findAll(@Query("sectionId") sectionId: string) {
+  findAll(@Query('sectionId') sectionId: string) {
     return this.resourcesService.findAll(sectionId);
   }
 
@@ -26,13 +35,16 @@ export class ResourcesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateResourceDto: UpdateResourceDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateResourceDto: UpdateResourceDto,
+  ) {
     return this.resourcesService.update(+id, updateResourceDto);
   }
 
-  @ResponseMessage("Delete resource by id")
+  @ResponseMessage('Delete resource by id')
   @Delete(':id')
-  remove(@Param('id') id: string, @Body("sectionId") sectionId: string) {
+  remove(@Param('id') id: string, @Body('sectionId') sectionId: string) {
     return this.resourcesService.remove(id, sectionId);
   }
 }

@@ -5,7 +5,7 @@ import { PrismaService } from '@/prisma.service';
 
 @Injectable()
 export class PurchasesService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   create(createPurchaseDto: CreatePurchaseDto) {
     return 'This action adds a new purchase';
@@ -13,17 +13,17 @@ export class PurchasesService {
 
   async findAll(instructorId: string) {
     if (!instructorId) {
-      throw new BadRequestException("Missing query param")
+      throw new BadRequestException('Missing query param');
     }
     const purchases = await this.prisma.purchase.findMany({
       where: {
         course: { instructorId: instructorId },
       },
       include: {
-        course: true
-      }
-    })
-    return purchases
+        course: true,
+      },
+    });
+    return purchases;
   }
 
   async findAllForStudent(user: IUser) {
@@ -38,24 +38,24 @@ export class PurchasesService {
             subCategory: true,
             sections: {
               where: {
-                isPublished: true
-              }
+                isPublished: true,
+              },
             },
             level: {
               select: {
-                name: true
-              }
+                name: true,
+              },
             },
             instructor: {
               select: {
                 name: true,
-                image: true
-              }
-            }
-          }
-        }
-      }
-    })
+                image: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 
   async findOne(courseId: string, user: IUser) {
@@ -63,10 +63,10 @@ export class PurchasesService {
       where: {
         customerId_courseId: {
           customerId: user.id,
-          courseId
-        }
-      }
-    })
+          courseId,
+        },
+      },
+    });
   }
 
   update(id: number, updatePurchaseDto: UpdatePurchaseDto) {

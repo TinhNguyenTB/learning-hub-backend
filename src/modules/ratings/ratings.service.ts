@@ -5,15 +5,15 @@ import { PrismaService } from '@/prisma.service';
 
 @Injectable()
 export class RatingsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async create(createRatingDto: CreateRatingDto) {
     const { content, courseId, quality, userId } = createRatingDto;
     const rate = await this.prisma.rating.findFirst({
-      where: { courseId, userId }
-    })
+      where: { courseId, userId },
+    });
     if (rate) {
-      throw new BadRequestException("Rate already exist")
+      throw new BadRequestException('Rate already exist');
     }
 
     const result = await this.prisma.rating.create({
@@ -21,30 +21,36 @@ export class RatingsService {
         content,
         courseId,
         quality,
-        userId
-      }
-    })
+        userId,
+      },
+    });
     const ratings = await this.prisma.rating.findMany({
       where: { courseId },
     });
-    const averageRating = ratings.reduce((acc, curr) => acc + curr.quality, 0) / ratings.length;
+    const averageRating =
+      ratings.reduce((acc, curr) => acc + curr.quality, 0) / ratings.length;
     // Update the course with the new average rating
     await this.prisma.course.update({
       where: { id: courseId },
       data: { averageRating },
     });
 
-    return result
+    return result;
   }
 
-  async findAll(current: number, pageSize: number, courseId: string, user: IUser) {
+  async findAll(
+    current: number,
+    pageSize: number,
+    courseId: string,
+    user: IUser,
+  ) {
     if (!current || current < 1) current = 1;
     if (!pageSize || pageSize < 1) pageSize = 10;
 
     const skip = current > 1 ? (current - 1) * pageSize : 0;
 
     const total = await this.prisma.rating.count({
-      where: { courseId, deleted: false }
+      where: { courseId, deleted: false },
     });
 
     const result = await this.prisma.rating.findMany({
@@ -55,17 +61,17 @@ export class RatingsService {
         user: {
           select: {
             name: true,
-            image: true
-          }
-        }
+            image: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
-    })
+        createdAt: 'desc',
+      },
+    });
     const hasRated = await this.prisma.rating.findFirst({
-      where: { courseId: courseId, userId: user.id }
-    })
+      where: { courseId: courseId, userId: user.id },
+    });
     const totalPages = Math.ceil(total / pageSize);
 
     return {
@@ -73,11 +79,11 @@ export class RatingsService {
         current: current,
         pageSize: pageSize,
         pages: totalPages,
-        total: total
+        total: total,
       },
       result,
-      hasRated: hasRated ? true : false
-    }
+      hasRated: hasRated ? true : false,
+    };
   }
 
   findOne(id: number) {
@@ -86,24 +92,25 @@ export class RatingsService {
 
   async update(id: string, updateRatingDto: UpdateRatingDto) {
     const rate = await this.prisma.rating.findUnique({
-      where: { id }
-    })
+      where: { id },
+    });
     if (!rate) {
-      throw new BadRequestException("Rate not found")
+      throw new BadRequestException('Rate not found');
     }
 
-    const { content, quality, courseId } = updateRatingDto
+    const { content, quality, courseId } = updateRatingDto;
     const result = await this.prisma.rating.update({
       where: { id },
       data: {
         content,
-        quality
-      }
-    })
+        quality,
+      },
+    });
     const ratings = await this.prisma.rating.findMany({
       where: { courseId },
     });
-    const averageRating = ratings.reduce((acc, curr) => acc + curr.quality, 0) / ratings.length;
+    const averageRating =
+      ratings.reduce((acc, curr) => acc + curr.quality, 0) / ratings.length;
     // Update the course with the new average rating
     await this.prisma.course.update({
       where: { id: courseId },
@@ -114,21 +121,22 @@ export class RatingsService {
 
   async remove(id: string, courseId: string) {
     const rate = await this.prisma.rating.findUnique({
-      where: { id }
-    })
+      where: { id },
+    });
     if (!rate) {
-      throw new BadRequestException("Rate not found")
+      throw new BadRequestException('Rate not found');
     }
     const result = await this.prisma.rating.delete({
       where: { id },
-    })
+    });
 
     const ratings = await this.prisma.rating.findMany({
       where: { courseId },
     });
     let averageRating = 0;
     if (ratings.length > 0) {
-      averageRating = ratings.reduce((acc, curr) => acc + curr.quality, 0) / ratings.length;
+      averageRating =
+        ratings.reduce((acc, curr) => acc + curr.quality, 0) / ratings.length;
     }
     // Update the course with the new average rating
     await this.prisma.course.update({
